@@ -54,7 +54,8 @@ const CAMERA_LIMIT_BOTTOM := 1600   # Bottom boundary of visible area
 enum MovementState { SNEAKING, WALKING }  # Renamed from CROUCHING to SNEAKING
 
 @onready var camera = $Camera2D
-@onready var sprite: Sprite2D = $Sprite2D
+# @onready var sprite: Sprite2D = $Sprite2D
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var bullet_detection_area = $BulletDetectionArea
 
 var current_state := MovementState.WALKING
@@ -62,6 +63,7 @@ var current_noise_level := 10  # Reduced from 15 for better stealth
 var is_caught := false  # Flag to prevent movement when caught
 var death_timer := 0.0  # Timer for death animation
 var is_dying := false  # Flag to track death state
+var last_direction := 2 # Direction, numpad
 
 # Stamina system variables
 var current_stamina := MAX_STAMINA  # Start with full stamina
@@ -243,7 +245,6 @@ func _physics_process(delta: float) -> void:
 	# Update noise event timer
 	noise_event_timer += delta
 	
-
 	
 	# Update cached guard check periodically (performance optimization)
 	update_crouch_cache(delta)
@@ -334,8 +335,33 @@ func _physics_process(delta: float) -> void:
 		last_noise_level = current_noise_level
 		
 		# Flip sprite based on movement direction
-		if velocity.x != 0:
-			sprite.flip_h = velocity.x < 0
+		# if velocity.x != 0:
+		# 	sprite.flip_h = velocity.x < 0
+		if velocity.x == 0 and velocity.y == 0:
+			match (last_direction):
+				2:
+					sprite.play('idle_down')
+				4:
+					sprite.play('idle_left')
+				6:
+					sprite.play('idle_right')
+				8:
+					sprite.play('idle_up')
+		elif abs(velocity.x) > abs(velocity.y):
+			if velocity.x > 0: #Facing right
+				sprite.play('walk_right')
+				last_direction = 6;
+			else:
+				sprite.play('walk_left')
+				last_direction = 4;
+		else:
+			if velocity.y > 0:
+				sprite.play('walk_down')
+				last_direction = 2;
+			else:
+				sprite.play('walk_up')
+				last_direction = 8;
+
 		
 		# Reset camera offset when not panning (return to player-centered)
 		camera.offset = camera.offset.lerp(Vector2.ZERO, 10 * delta)
