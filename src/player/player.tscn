@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://dsgljtlwr407e"]
 
 [ext_resource type="Script" uid="uid://b57t1enu7r3ud" path="res://src/player/player.gd" id="1_rxibo"]
-[ext_resource type="Texture2D" uid="uid://b1pn62m5oqmgb" path="res://assets/sprites/player.png" id="2_player"]
+[ext_resource type="SpriteFrames" uid="uid://cglu14hde6n5j" path="res://src/player/yuyuko.tres" id="2_rxibo"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_244u8"]
 size = Vector2(7.75, 7)
@@ -10,7 +10,7 @@ size = Vector2(7.75, 7)
 radius = 5.0
 height = 12.0
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Yuyuko" type="CharacterBody2D"]
 top_level = true
 z_index = 2
 collision_mask = 2
@@ -25,11 +25,6 @@ process_callback = 0
 position_smoothing_enabled = true
 rotation_smoothing_enabled = true
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(3, -2)
-scale = Vector2(0.6, 0.6)
-texture = ExtResource("2_player")
-
 [node name="BulletDetectionArea" type="Area2D" parent="."]
 collision_layer = 16
 collision_mask = 8
@@ -38,3 +33,9 @@ collision_mask = 8
 position = Vector2(3, -2)
 shape = SubResource("CapsuleShape2D_jiejy")
 debug_color = Color(0.664095, 0.511603, 0.0707038, 0.42)
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(2.9999998, -2)
+scale = Vector2(0.235, 0.235)
+sprite_frames = ExtResource("2_rxibo")
+animation = &"idle_down"

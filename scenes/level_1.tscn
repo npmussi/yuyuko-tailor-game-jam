@@ -116,8 +116,8 @@ position = Vector2(552, 24)
 [node name="SpikeTrap8" parent="Traps" instance=ExtResource("18_x2xxo")]
 position = Vector2(648, 40)
 
-[node name="Player" parent="." instance=ExtResource("3_5xbjy")]
-position = Vector2(336, 336)
+[node name="Yuyuko" parent="." instance=ExtResource("3_5xbjy")]
+position = Vector2(344, 336)
 collision_layer = 3
 collision_mask = 17
 
@@ -128,7 +128,7 @@ collision_mask = 22
 motion_mode = 1
 wall_min_slide_angle = 0.0
 patrol_points = [NodePath("../PatrolPoints/Point1"), NodePath("../PatrolPoints/Point2")]
-target = NodePath("../Player")
+target = NodePath("../Yuyuko")
 
 [node name="Guard2" parent="." node_paths=PackedStringArray("patrol_points", "target") instance=ExtResource("4_4nkto")]
 position = Vector2(364, 240)
@@ -137,7 +137,7 @@ collision_mask = 22
 motion_mode = 1
 wall_min_slide_angle = 0.0
 patrol_points = [NodePath("../PatrolPoints/Point3"), NodePath("../PatrolPoints/Point4")]
-target = NodePath("../Player")
+target = NodePath("../Yuyuko")
 
 [node name="PatrolPoints" type="Node2D" parent="."]
 metadata/_edit_lock_ = true
