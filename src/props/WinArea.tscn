@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3 uid="uid://h246rwqevrsk"]
+
+[ext_resource type="Script" uid="uid://blpvivrp7cwqe" path="res://src/props/WinArea.gd" id="1_winarea"]
+[ext_resource type="Texture2D" uid="uid://doofeeujm1yu4" path="res://assets/sprites/Goal.png" id="2_lic23"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_winarea"]
+size = Vector2(32, 32)
+
+[node name="WinArea" type="Area2D"]
+script = ExtResource("1_winarea")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_winarea")
+
+[node name="Visual" type="ColorRect" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -16.0
+offset_top = -16.0
+offset_right = 16.0
+offset_bottom = 16.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 1, 0, 0.3)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_lic23")

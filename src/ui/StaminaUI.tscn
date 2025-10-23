@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://bkj3m4n5o6p7q"]
+
+[ext_resource type="Script" uid="uid://okrwu4ublaeq" path="res://src/ui/StaminaUI.gd" id="1_stamina"]
+[ext_resource type="FontFile" uid="uid://bhh34d3fuuyq3" path="res://assets/gothic.ttf" id="2_6epv5"]
+
+[node name="StaminaUI" type="CanvasLayer"]
+script = ExtResource("1_stamina")
+
+[node name="StaminaUI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="StaminaLabel" type="Label" parent="StaminaUI"]
+layout_mode = 0
+offset_top = 16.0
+offset_right = 117.0
+offset_bottom = 39.0
+theme_override_fonts/font = ExtResource("2_6epv5")
+text = "30/30 Stamnia"
+
+[node name="MovementLabel" type="Label" parent="StaminaUI"]
+layout_mode = 0
+offset_top = 46.0
+offset_right = 117.0
+offset_bottom = 69.0
+theme_override_fonts/font = ExtResource("2_6epv5")
+text = "Walking"

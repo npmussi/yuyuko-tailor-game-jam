@@ -1,0 +1,91 @@
+[gd_scene load_steps=13 format=3 uid="uid://dtfl00dipdh45"]
+
+[ext_resource type="Script" uid="uid://blevlqtey2wgo" path="res://src/traps/SpikeTrap.gd" id="1_spike"]
+[ext_resource type="Texture2D" uid="uid://c3eba66i013cl" path="res://src/traps/spike1.png" id="2_y5jv8"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_euqxl"]
+atlas = ExtResource("2_y5jv8")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3g0rw"]
+atlas = ExtResource("2_y5jv8")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7x11g"]
+atlas = ExtResource("2_y5jv8")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_58nml"]
+atlas = ExtResource("2_y5jv8")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gpoxb"]
+atlas = ExtResource("2_y5jv8")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gkalk"]
+atlas = ExtResource("2_y5jv8")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hl2nq"]
+atlas = ExtResource("2_y5jv8")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v38ps"]
+atlas = ExtResource("2_y5jv8")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_8qsoe"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_euqxl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3g0rw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7x11g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_58nml")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gpoxb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gkalk")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hl2nq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v38ps")
+}],
+"loop": true,
+"name": &"spike",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="CollisionShape_spike"]
+size = Vector2(16, 16)
+
+[node name="SpikeTrap" type="StaticBody2D"]
+z_index = 5
+collision_layer = 4
+script = ExtResource("1_spike")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_8qsoe")
+animation = &"spike"
+frame = 2
+frame_progress = 0.72051
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CollisionShape_spike")
+
+[node name="DangerArea2D" type="Area2D" parent="."]
+collision_layer = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DangerArea2D"]
+shape = SubResource("CollisionShape_spike")

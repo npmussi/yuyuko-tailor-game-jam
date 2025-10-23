@@ -1,0 +1,59 @@
+[gd_scene load_steps=6 format=3 uid="uid://bknf2jt8d52ch"]
+
+[ext_resource type="Script" path="res://src/projectiles/SimpleBullet.gd" id="1_2k3ql"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1hdqw"]
+radius = 1.0
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_trail"]
+direction = Vector3(-1, 0, 0)
+spread = 15.0
+initial_velocity_min = 20.0
+initial_velocity_max = 40.0
+gravity = Vector3(0, 0, 0)
+scale_min = 0.1
+scale_max = 0.3
+color = Color(1, 1, 0, 1)
+hue_variation_min = -0.1
+hue_variation_max = 0.1
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_impact"]
+direction = Vector3(0, 0, 0)
+spread = 45.0
+initial_velocity_min = 50.0
+initial_velocity_max = 150.0
+gravity = Vector3(0, 50, 0)
+scale_min = 0.2
+scale_max = 0.5
+color = Color(1, 0.8, 0, 1)
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_glow"]
+blend_mode = 1
+
+[node name="Bullet" type="RigidBody2D"]
+collision_layer = 4
+collision_mask = 3
+gravity_scale = 0.0
+linear_damp = 0.0
+script = ExtResource("1_2k3ql")
+
+[node name="Sprite2D" type="Sprite2D"]
+material = SubResource("CanvasItemMaterial_glow")
+modulate = Color(1, 1, 0, 1)
+scale = Vector2(1.0, 1.0)
+
+[node name="CollisionShape2D" type="CollisionShape2D"]
+shape = SubResource("CircleShape2D_1hdqw")
+
+[node name="GPUParticles2D" type="GPUParticles2D"]
+emitting = false
+amount = 50
+process_material = SubResource("ParticleProcessMaterial_trail")
+lifetime = 0.5
+
+[node name="ImpactParticles" type="GPUParticles2D"]
+emitting = false
+amount = 30
+process_material = SubResource("ParticleProcessMaterial_impact")
+lifetime = 0.3
+one_shot = true
