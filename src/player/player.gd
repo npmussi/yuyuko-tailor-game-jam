@@ -93,10 +93,6 @@ func _ready() -> void:
 	# Add player to group for UI reference
 	add_to_group("player")
 	
-	# Force correct collision settings in code
-	collision_layer = 1  # Layer 1 (player)
-	collision_mask = 2   # Layer 2 (walls)
-	
 	# Set initial zoom
 	camera.zoom = Vector2(camera_zoom_level, camera_zoom_level)
 	# Ensure camera is active and follows the player
@@ -124,7 +120,6 @@ func _ready() -> void:
 	
 	assert(sprite != null)
 	const INTRO_TIMELINE = preload("res://src/dialogic/timeline.dtl")
-	# ...existing code...
 	Dialogic.start(INTRO_TIMELINE)
 	
 func setup_camera_limits_from_tilemap() -> void:

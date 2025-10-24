@@ -20,7 +20,6 @@
 
 extends TileMap
 
-
 func _use_tile_data_runtime_update(layer, coords):
 	if coords in get_used_cells_by_id(layer, 1):
 		return true
