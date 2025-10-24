@@ -36,7 +36,7 @@ extends CharacterBody2D
 
 # Noise System - Inspector Variables
 @export var walking_noise_radius := 60.0  # Noise radius when walking normally
-@export var sneaking_noise_radius := 30.0  # Noise radius when sneaking
+@export var sneaking_noise_radius := 2.0  # Noise radius when sneaking
 
 # Stamina system constants
 const MAX_STAMINA := 30.0  # Base stamina amount
@@ -123,7 +123,10 @@ func _ready() -> void:
 		bullet_detection_area.body_entered.connect(_on_bullet_hit)
 	
 	assert(sprite != null)
-
+	const INTRO_TIMELINE = preload("res://src/dialogic/timeline.dtl")
+	# ...existing code...
+	Dialogic.start(INTRO_TIMELINE)
+	
 func setup_camera_limits_from_tilemap() -> void:
 	"""Automatically set camera limits based on the TileMap in the scene"""
 	# Find the TileMap node in the scene - try multiple approaches

@@ -59,4 +59,3 @@ func _process(_delta):
 			else:
 				movement_label.text = "Walking"
 		
-
