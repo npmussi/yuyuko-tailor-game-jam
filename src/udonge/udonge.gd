@@ -28,6 +28,7 @@ func _ready() -> void:
 	set_state(UdongeState.OFF)
 
 func set_state(state: UdongeState) -> void:
+	current_state = state  # Update the current state variable
 	print("Udonge state changed to: ", state)
 	match state:
 		UdongeState.OFF:
@@ -49,18 +50,23 @@ func emit_noise() -> void:
 func _physics_process(delta: float) -> void:
 	# Stationary.
 	velocity = Vector2.ZERO
+	print("UDONGE PHYSICS: Velocity set to ZERO", current_state)
 	if current_state != UdongeState.ON:
 		return
+	
+	print("UDONGE PHYSICS: Running, state_timer=", state_timer, ", noise_timer=", noise_timer)
 	
 	state_timer += delta
 	noise_timer += delta
 
 	if state_timer >= duration:
+		print("UDONGE: Turning OFF after ", duration, " seconds")
 		set_state(UdongeState.OFF)
 		state_timer = 0
 		noise_timer = 0
 		return
-	elif noise_timer >= noise_interval:
+	elif noise_timer >= noise_interval:  # Fixed: should be >=, not <=
+		print("Udonge emitting noise at position: ", get_global_position())
 		emit_noise()
 		noise_timer = 0
 
