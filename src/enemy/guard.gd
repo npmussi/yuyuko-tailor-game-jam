@@ -992,12 +992,7 @@ func _on_noise_event(origin: Vector2, radius: float, noise_type: String) -> void
 	
 	# Determine investigation target based on noise type
 	var investigation_target: Vector2
-	if noise_type == "udonge":
-		# For udonge noise, investigate the udonge's exact position (stationary)
-		investigation_target = origin
-	else:
-		# For player noise (footsteps, etc.), investigate player's current position
-		investigation_target = player.global_position
+	investigation_target = player.global_position  # Always investigate player position
 	
 	if debug_timer >= debug_interval:
 		print("GUARD NOISE DEBUG: Heard ", noise_type, " from ", origin, " - investigating ", investigation_target)
