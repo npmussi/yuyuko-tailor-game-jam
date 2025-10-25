@@ -107,6 +107,9 @@ var investigation_position := Vector2.ZERO
 var last_patrol_index := 0
 var last_shot_time := 0.0  # Track when we last shot
 var is_shooting := false  # Flag to track if currently shooting
+var last_heard_noise_distance := INF  # Track distance to last heard noise
+var noise_cooldown := 0.0  # Cooldown timer for noise responses
+const NOISE_RESPONSE_COOLDOWN := 0.5  # Only respond to noise every 0.5 seconds
 
 @onready var nav_agent := $NavigationAgent2D
 @onready var sprite: Sprite2D = $Sprite2D
@@ -237,6 +240,10 @@ func _physics_process(delta: float) -> void:
 	
 	# Update debug timer for throttling debug output
 	debug_timer += delta
+	
+	# Update noise cooldown timer
+	if noise_cooldown > 0.0:
+		noise_cooldown -= delta
 	
 	# Track alert timer
 	if current_state == GuardState.ALERT:
@@ -976,6 +983,16 @@ func _on_noise_event(origin: Vector2, radius: float, noise_type: String) -> void
 	if radius < distance_to_center - guard_radius:
 		# Noise doesn't reach us at all
 		return
+	
+	# Only respond if this noise is closer than the last one, or cooldown expired
+	if noise_cooldown > 0.0 and distance_to_center >= last_heard_noise_distance:
+		if debug_timer >= debug_interval:
+			print("GUARD: Ignoring noise at ", origin, " (distance ", distance_to_center, ") - already responding to closer noise (", last_heard_noise_distance, ")")
+		return
+	
+	# Update last heard noise distance and start cooldown
+	last_heard_noise_distance = distance_to_center
+	noise_cooldown = NOISE_RESPONSE_COOLDOWN
 	
 	# Determine investigation target based on noise type
 	var investigation_target: Vector2
