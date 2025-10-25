@@ -47,6 +47,7 @@ const MOVEMENT_THRESHOLD := 5.0  # Minimum velocity to be considered "moving" (s
 @export var min_patrol_speed := 15.0  # Minimum patrol speed
 @export var max_patrol_speed := 25.0  # Maximum patrol speed
 @export var stationary := false  # If true, guard will not move from initial position
+@export var wait_time := 0.0 # How long to wait at each patrol point
 
 # Vision System
 @export var target: Node2D
@@ -465,11 +466,13 @@ func handle_investigate_state(delta: float) -> void:
 	# Always increment total investigation time
 	total_investigation_time += delta
 	
-	# FAILSAFE: If investigating too long, guard gets fed up and becomes alert
+	# FAILSAFE: If investigating too long, guard gives up and returns to patrol
 	if total_investigation_time > MAX_INVESTIGATION_TIME:
 		total_investigation_time = 0.0
-		consecutive_investigations = 0  # Reset since this triggers alert
-		change_state(GuardState.ALERT)
+		consecutive_investigations = 0  # Reset investigation counter
+		# SMART: Find nearest patrol point instead of using potentially invalid last_patrol_index
+		set_nearest_patrol_as_start()
+		change_state(GuardState.PATROL)
 		return
 	
 	if can_see_player():
@@ -500,7 +503,8 @@ func handle_investigate_state(delta: float) -> void:
 			# Investigation complete - return to patrol normally (this resets suspicion)
 			consecutive_investigations = 0
 			total_investigation_time = 0.0
-			current_patrol_index = last_patrol_index
+			# SMART: Find the nearest patrol point instead of trying to return to old position
+			set_nearest_patrol_as_start()
 			change_state(GuardState.PATROL)
 
 func change_state(new_state: GuardState) -> void:
@@ -984,6 +988,22 @@ func _on_noise_event(origin: Vector2, radius: float, noise_type: String) -> void
 		# Noise doesn't reach us at all
 		return
 	
+	# ONLY respond to udonge distractions (ignore player footsteps)
+	if noise_type != "udonge":
+		if debug_timer >= debug_interval:
+			print("GUARD: Ignoring non-udonge noise (", noise_type, ") at ", origin)
+		return
+	
+	# STATIONARY GUARDS: Rotate toward udonge noise but don't move
+	if stationary:
+		var direction_to_noise = (origin - global_position).normalized()
+		if direction_to_noise.length() > 0.01:
+			target_facing_angle = rad_to_deg(direction_to_noise.angle())
+		
+		if debug_timer >= debug_interval:
+			print("GUARD: Stationary guard heard udonge at ", origin, " - looking toward it")
+		return
+	
 	# Only respond if this noise is closer than the last one, or cooldown expired
 	if noise_cooldown > 0.0 and distance_to_center >= last_heard_noise_distance:
 		if debug_timer >= debug_interval:
@@ -994,25 +1014,14 @@ func _on_noise_event(origin: Vector2, radius: float, noise_type: String) -> void
 	last_heard_noise_distance = distance_to_center
 	noise_cooldown = NOISE_RESPONSE_COOLDOWN
 	
-	# Determine investigation target based on noise type
-	var investigation_target: Vector2
-	investigation_target = player.global_position  # Always investigate player position
+	# Investigate the NOISE ORIGIN (where udonge was thrown), not player position
+	var investigation_target: Vector2 = origin
 	
 	if debug_timer >= debug_interval:
 		print("GUARD NOISE DEBUG: Heard ", noise_type, " from ", origin, " - investigating ", investigation_target)
 		print("GUARD POSITION DEBUG: Guard at ", global_position, " - Nav target will be ", investigation_target)
 	
-	# Don't investigate if stationary (stationary guards stay at post)
-	if stationary:
-		var direction_to_noise = (origin - global_position).normalized()
-		if direction_to_noise.length() > 0.01:
-			target_facing_angle = rad_to_deg(direction_to_noise.angle())
-		
-		if debug_timer >= debug_interval:
-			print("GUARD: Stationary guard heard noise - looking toward ", origin, " but staying at post")
-		return
-	
-	# Always investigate when noise touches us (non-stationary guards only)
+	# Investigate udonge distraction (patrol/scanning guards only)
 	if current_state == GuardState.PATROL or current_state == GuardState.SCANNING:
 		last_known_position = investigation_target
 		investigation_position = investigation_target  # Set BEFORE changing state

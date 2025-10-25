@@ -5,13 +5,6 @@
 [ext_resource type="Texture2D" uid="uid://dauq5wjmjv6j3" path="res://assets/sprites/icons/alert_exclaim.png" id="3_alert"]
 [ext_resource type="Texture2D" uid="uid://x7jltdrm6vnv" path="res://assets/sprites/icons/investigate_question.png" id="4_question"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_0ay6c"]
-radius = 5.0
-
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ui2m7"]
-radius = 7.0
-height = 14.0
-
 [sub_resource type="SpriteFrames" id="SpriteFrames_1"]
 animations = [{
 "frames": [{
@@ -22,14 +15,23 @@ animations = [{
 "texture": ExtResource("4_question")
 }],
 "loop": false,
-"name": "default",
+"name": &"default",
 "speed": 5.0
 }]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0ay6c"]
+radius = 5.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ui2m7"]
+radius = 7.0
+height = 14.0
 
 [node name="Guard" type="CharacterBody2D"]
 collision_layer = 4
 collision_mask = 2
 script = ExtResource("1_0ay6c")
+scan_chance = 0.0
+mid_patrol_scan_chance = 0.0
 show_debug_visuals = true
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
@@ -37,12 +39,11 @@ scale = Vector2(0.6, 0.6)
 texture = ExtResource("2_enemy")
 
 [node name="StateIcon" type="AnimatedSprite2D" parent="."]
+visible = false
 position = Vector2(0, -12)
 scale = Vector2(0.5, 0.5)
 sprite_frames = SubResource("SpriteFrames_1")
-frame = 0
 autoplay = "default"
-visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1)
