@@ -74,6 +74,7 @@ const MOVEMENT_THRESHOLD := 5.0  # Minimum velocity to be considered "moving" (s
 
 # Debug
 @export var show_debug_visuals := false  # Toggle to show/hide vision cones and patrol routes
+@export var sprite_facing_offset := 0.0  # Degrees to add to sprite rotation if asset faces different direction
 
 # Hysteresis values to prevent oscillation between behaviors
 var current_behavior_zone := "none"  # Track current behavior to add hysteresis
@@ -263,6 +264,22 @@ func _physics_process(delta: float) -> void:
 	if stationary:
 		velocity = Vector2.ZERO
 		move_and_slide()
+	
+	# Handle rotation for all guards (including stationary ones)
+	# Smoothly interpolate to target angle
+	current_facing_angle = lerp_angle(
+		deg_to_rad(current_facing_angle),
+		deg_to_rad(target_facing_angle),
+		delta * rotation_speed
+	)
+	current_facing_angle = rad_to_deg(current_facing_angle)
+	
+	# Update sprite direction for stationary guards
+	if stationary:
+		# Rotate sprite to face the current direction, accounting for asset facing
+		sprite.rotation = deg_to_rad(current_facing_angle + sprite_facing_offset)
+		# Redraw vision cone to match new facing direction
+		queue_redraw()
 		return
 	
 	# Improved movement code (only if not scanning)
@@ -275,41 +292,23 @@ func _physics_process(delta: float) -> void:
 		if dir.length() > 0.1:  # Only update when actually moving
 			target_facing_angle = rad_to_deg(dir.angle())
 		
-		# Smoothly interpolate to target angle
-		current_facing_angle = lerp_angle(
-			deg_to_rad(current_facing_angle),
-			deg_to_rad(target_facing_angle),
-			delta * rotation_speed
-		)
-		current_facing_angle = rad_to_deg(current_facing_angle)
-		
 		# Ensure consistent movement speed
 		velocity = dir * movement_speed
 		
 		move_and_slide()
 		
 		# Update sprite direction
-		if velocity.x != 0:
-			sprite.flip_h = velocity.x < 0
+		sprite.rotation = deg_to_rad(current_facing_angle + sprite_facing_offset)
 	else:
 		# Navigation fallback: if no path is available, walk directly toward patrol target
 		if current_state == GuardState.PATROL and patrol_points.size() > 0:
 			var patrol_target: Vector2 = patrol_points[current_patrol_index].global_position
 			var dir_fb = global_position.direction_to(patrol_target)
 			if dir_fb.length() > 0.01:
-				# Update facing
-				target_facing_angle = rad_to_deg(dir_fb.angle())
-				current_facing_angle = lerp_angle(
-					deg_to_rad(current_facing_angle),
-					deg_to_rad(target_facing_angle),
-					get_physics_process_delta_time() * rotation_speed
-				)
-				current_facing_angle = rad_to_deg(current_facing_angle)
 				# Move
 				velocity = dir_fb * movement_speed
 				move_and_slide()
-				if velocity.x != 0:
-					sprite.flip_h = velocity.x < 0
+				sprite.rotation = deg_to_rad(current_facing_angle + sprite_facing_offset)
 			# Consider we have reached the point when close enough
 			if global_position.distance_to(patrol_target) <= 6.0:
 				set_next_patrol_point()
@@ -371,7 +370,7 @@ func handle_patrol_state() -> void:
 	
 	# Update sprite direction based on movement
 	if velocity.length() > 0.1:
-		sprite.flip_h = velocity.x < 0
+		sprite.rotation = deg_to_rad(current_facing_angle + sprite_facing_offset)
 	
 	move_and_slide()
 
@@ -481,17 +480,9 @@ func handle_investigate_state(delta: float) -> void:
 		var direction_to_target = (investigation_position - global_position).normalized()
 		if direction_to_target.length() > 0.01:
 			target_facing_angle = rad_to_deg(direction_to_target.angle())
-			# Smoothly rotate to face the investigation point
-			current_facing_angle = lerp_angle(
-				deg_to_rad(current_facing_angle),
-				deg_to_rad(target_facing_angle),
-				delta * rotation_speed
-			)
-			current_facing_angle = rad_to_deg(current_facing_angle)
 			
 			# Update sprite direction
-			if direction_to_target.x != 0:
-				sprite.flip_h = direction_to_target.x < 0
+			sprite.rotation = deg_to_rad(target_facing_angle + sprite_facing_offset)
 		
 		# Adjust investigation wait time based on suspicion level
 		var effective_wait_time = investigation_wait_time
@@ -798,13 +789,9 @@ func handle_scan_rotation(delta: float) -> void:
 	while scan_angle >= 360:
 		scan_angle -= 360
 	
-	# Face left for angles 90-270 degrees (left side), face right for 270-90 degrees (right side)
-	if scan_angle > 90 and scan_angle < 270:
-		sprite.flip_h = true  # Face left
-	elif scan_angle < 90 or scan_angle > 270:
-		sprite.flip_h = false  # Face right
-	# For straight up (90) or straight down (270), keep current facing direction
-	
+	# Rotate sprite to face the scan direction, accounting for asset facing
+	sprite.rotation = deg_to_rad(scan_angle + sprite_facing_offset)
+
 	# Smoothly rotate to target angle
 	var angle_diff = angle_difference(deg_to_rad(current_facing_angle), deg_to_rad(scan_target_angle))
 	if abs(angle_diff) > 0.1:  # Still rotating
@@ -1000,8 +987,12 @@ func _on_noise_event(origin: Vector2, radius: float, noise_type: String) -> void
 	
 	# Don't investigate if stationary (stationary guards stay at post)
 	if stationary:
+		var direction_to_noise = (origin - global_position).normalized()
+		if direction_to_noise.length() > 0.01:
+			target_facing_angle = rad_to_deg(direction_to_noise.angle())
+		
 		if debug_timer >= debug_interval:
-			print("GUARD: Stationary guard ignoring noise - staying at post")
+			print("GUARD: Stationary guard heard noise - looking toward ", origin, " but staying at post")
 		return
 	
 	# Always investigate when noise touches us (non-stationary guards only)
@@ -1088,7 +1079,9 @@ func _draw() -> void:
 	points.append(Vector2.ZERO)
 	
 	for i in num_rays:
-		var angle = deg_to_rad(current_facing_angle - view_angle/2.0 + 
+		# Apply debug cone offset to align with sprite facing direction
+		var cone_angle = current_facing_angle 
+		var angle = deg_to_rad(cone_angle - view_angle/2.0 + 
 							(view_angle * i / (num_rays - 1)))
 		var direction = Vector2.RIGHT.rotated(angle)
 		
