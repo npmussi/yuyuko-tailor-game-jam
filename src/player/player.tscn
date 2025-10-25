@@ -15,6 +15,7 @@ top_level = true
 z_index = 2
 collision_mask = 3
 script = ExtResource("1_rxibo")
+player_speed = 66.6
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(3, -2)

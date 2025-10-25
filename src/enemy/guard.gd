@@ -46,6 +46,7 @@ const MOVEMENT_THRESHOLD := 5.0  # Minimum velocity to be considered "moving" (s
 @export var patrol_points: Array[Node2D] = []
 @export var min_patrol_speed := 15.0  # Minimum patrol speed
 @export var max_patrol_speed := 25.0  # Maximum patrol speed
+@export var stationary := false  # If true, guard will not move from initial position
 
 # Vision System
 @export var target: Node2D
@@ -188,6 +189,10 @@ func _ready() -> void:
 	
 	# Ensure game over flag is reset when scene restarts
 	is_game_over = false
+
+	if stationary:
+		movement_speed = 0.0
+		change_state(GuardState.PATROL)
 	
 	setup()
 
@@ -254,6 +259,11 @@ func _physics_process(delta: float) -> void:
 			handle_investigate_state(delta)
 		GuardState.SCANNING:
 			handle_scanning_state(delta)
+
+	if stationary:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
 	
 	# Improved movement code (only if not scanning)
 	if current_state != GuardState.SCANNING and !nav_agent.is_navigation_finished():
@@ -466,6 +476,22 @@ func handle_investigate_state(delta: float) -> void:
 	# Check if investigation is complete
 	if nav_agent.is_navigation_finished():
 		investigation_timer += delta
+		
+		# Face the investigation position while waiting
+		var direction_to_target = (investigation_position - global_position).normalized()
+		if direction_to_target.length() > 0.01:
+			target_facing_angle = rad_to_deg(direction_to_target.angle())
+			# Smoothly rotate to face the investigation point
+			current_facing_angle = lerp_angle(
+				deg_to_rad(current_facing_angle),
+				deg_to_rad(target_facing_angle),
+				delta * rotation_speed
+			)
+			current_facing_angle = rad_to_deg(current_facing_angle)
+			
+			# Update sprite direction
+			if direction_to_target.x != 0:
+				sprite.flip_h = direction_to_target.x < 0
 		
 		# Adjust investigation wait time based on suspicion level
 		var effective_wait_time = investigation_wait_time
@@ -951,11 +977,9 @@ func _on_catch_area_body_entered(body: Node2D) -> void:
 		call_deferred("trigger_game_over")
 
 func _on_noise_event(origin: Vector2, radius: float, noise_type: String) -> void:
-	"""Handle noise events from the player - check if noise radius touches guard"""
+	"""Handle noise events - check if noise radius touches guard"""
 	if is_game_over:
 		return
-	
-
 	
 	# Calculate distance from noise origin to guard's center
 	var distance_to_center = global_position.distance_to(origin)
@@ -966,20 +990,29 @@ func _on_noise_event(origin: Vector2, radius: float, noise_type: String) -> void
 		# Noise doesn't reach us at all
 		return
 	
-	# TODO: LOS check disabled for now since collision layers aren't set up properly yet
-	# Will re-enable once proper collision layers are configured
-	
-	# Noise reached us - investigate the EXACT player position (not noise origin)
-	var player_position = player.global_position
+	# Determine investigation target based on noise type
+	var investigation_target: Vector2
+	if noise_type == "udonge":
+		# For udonge noise, investigate the udonge's exact position (stationary)
+		investigation_target = origin
+	else:
+		# For player noise (footsteps, etc.), investigate player's current position
+		investigation_target = player.global_position
 	
 	if debug_timer >= debug_interval:
-		print("GUARD NOISE DEBUG: Heard ", noise_type, " from ", origin, " - investigating player at ", player_position)
-		print("GUARD POSITION DEBUG: Guard at ", global_position, " - Nav target will be ", player_position)
+		print("GUARD NOISE DEBUG: Heard ", noise_type, " from ", origin, " - investigating ", investigation_target)
+		print("GUARD POSITION DEBUG: Guard at ", global_position, " - Nav target will be ", investigation_target)
 	
-	# Always investigate when noise touches us
+	# Don't investigate if stationary (stationary guards stay at post)
+	if stationary:
+		if debug_timer >= debug_interval:
+			print("GUARD: Stationary guard ignoring noise - staying at post")
+		return
+	
+	# Always investigate when noise touches us (non-stationary guards only)
 	if current_state == GuardState.PATROL or current_state == GuardState.SCANNING:
-		last_known_position = player_position  # Use exact player position
-		investigation_position = player_position  # Set BEFORE changing state
+		last_known_position = investigation_target
+		investigation_position = investigation_target  # Set BEFORE changing state
 		change_state(GuardState.INVESTIGATE)
 		investigation_timer = 0.0
 		
@@ -987,18 +1020,18 @@ func _on_noise_event(origin: Vector2, radius: float, noise_type: String) -> void
 		consecutive_investigations += 1
 		
 		if debug_timer >= debug_interval:
-			print("GUARD: Investigating player at ", player_position, " (investigation #", consecutive_investigations, ")")
-			print("GUARD NAV DEBUG: Setting nav_agent.target_position to ", player_position)
+			print("GUARD: Investigating ", noise_type, " at ", investigation_target, " (investigation #", consecutive_investigations, ")")
+			print("GUARD NAV DEBUG: Setting nav_agent.target_position to ", investigation_target)
 	elif current_state == GuardState.INVESTIGATE:
-		# Always update to latest player position
-		last_known_position = player_position  # Use exact player position
-		investigation_position = player_position  # Use exact player position
+		# Update to latest noise position
+		last_known_position = investigation_target
+		investigation_position = investigation_target
 		investigation_timer = 0.0  # Reset investigation timer
 		nav_agent.target_position = investigation_position  # Update nav target directly
 		
 		if debug_timer >= debug_interval:
-			print("GUARD: Updated investigation target to player position ", player_position)
-			print("GUARD NAV DEBUG: Updated nav_agent.target_position to ", player_position)
+			print("GUARD: Updated investigation target to ", noise_type, " position ", investigation_target)
+			print("GUARD NAV DEBUG: Updated nav_agent.target_position to ", investigation_target)
 
 func _draw() -> void:
 	# Only draw debug visuals if enabled

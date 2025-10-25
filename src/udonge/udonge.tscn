@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://iue7yuws0ss5"]
+
+[ext_resource type="Script" uid="uid://cdbc7xlnjryon" path="res://src/udonge/udonge.gd" id="1_61cqn"]
+[ext_resource type="Texture2D" uid="uid://cta6g1s82q4bg" path="res://assets/sprites/10.png" id="1_jd4y5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u5o62"]
+
+[node name="Udonge" type="CharacterBody2D"]
+script = ExtResource("1_61cqn")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_u5o62")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("1_jd4y5")
+hframes = 12
+vframes = 8
+frame = 10

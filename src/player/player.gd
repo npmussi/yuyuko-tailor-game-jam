@@ -216,6 +216,46 @@ func update_stamina(delta: float) -> void:
 		current_stamina += STAMINA_REGEN_RATE * delta
 		current_stamina = min(MAX_STAMINA, current_stamina)  # Don't exceed max
 
+func activate_nearby_objects() -> void:
+	"""Activate/interact with nearby objects in front of the player.
+	This basically:
+		1. Create a circle in front of the player
+		2. Checks all objects in that circle
+		3. Runs any object's 'activate' method if it exists
+	"""
+	var interaction_distance := 16.0  # Distance to check for interactable objects
+	var direction_vector := Vector2.ZERO
+	
+	match last_direction: # Be very dumb if we could activate without looking at it.
+		8: direction_vector = Vector2(0, -1)  # Up
+		2: direction_vector = Vector2(0, 1)   # Down
+		4: direction_vector = Vector2(-1, 0)  # Left
+		6: direction_vector = Vector2(1, 0)   # Right
+		7: direction_vector = Vector2(-1, -1).normalized()  # Up-Left
+		9: direction_vector = Vector2(1, -1).normalized()   # Up-Right
+		1: direction_vector = Vector2(-1, 1).normalized()   # Down-Left
+		3: direction_vector = Vector2(1, 1).normalized()    # Down-Right
+	
+	var check_position = global_position + (direction_vector * interaction_distance)
+	var space_state = get_world_2d().direct_space_state
+	
+	# Create query parameters for point intersection
+	var params = PhysicsPointQueryParameters2D.new()
+	params.position = check_position
+	params.collide_with_areas = true
+	params.collide_with_bodies = true
+	
+	var result = space_state.intersect_point(params)
+	
+	print("Checking interaction at position: ", check_position, " found ", result.size(), " objects.")
+	for hit in result:
+		print("Hit object: ", hit.collider.name, " and is in group 'interactable': ", hit.collider.is_in_group("interactable"))
+		var obj = hit.collider
+		if obj and obj.is_in_group("interactable"):
+			obj.activate()
+			print("Activated object: ", obj.name)
+			return  # Only activate one object at a time
+
 func _on_bullet_hit(body: Node) -> void:
 	"""Called when a bullet hits the player's detection area"""
 	# Don't trigger death if already dying or caught
@@ -266,6 +306,18 @@ func _physics_process(delta: float) -> void:
 			if current_state == MovementState.SNEAKING:
 				current_state = MovementState.WALKING
 				# Don't change noise level when just changing stance
+
+	if Input.is_action_just_pressed("ui_accept"):
+		# First check if we are in front of an object
+		# Copying RPG Maker style interaction
+		activate_nearby_objects()
+
+		# Check win condition
+		var win_area = get_tree().get_first_node_in_group("win_area")
+		if win_area and global_position.distance_to(win_area.global_position) < 32:
+			print("Player reached the win area! You win!")
+			# Restart the game after a short delay
+			get_tree().reload_current_scene()
 	
 
 	
