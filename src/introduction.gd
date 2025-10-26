@@ -3,11 +3,34 @@ extends Node2D
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	const INTRO_TIMELINE = preload("res://src/dialogic/introduction.dtl")
-	Dialogic.start(INTRO_TIMELINE)
-	pass # Replace with function body.
+	var timeline_path := "res://src/dialogic/introduction.dtl"
+	
+	# Check if timeline exists before loading (safer for export)
+	if !ResourceLoader.exists(timeline_path):
+		push_warning("Dialogic timeline not found: %s. Skipping intro." % timeline_path)
+		# Go directly to streets if timeline missing
+		load_streets_scene()
+		return
+	
+	var timeline = ResourceLoader.load(timeline_path)
+	if timeline == null:
+		push_warning("Failed to load Dialogic timeline: %s" % timeline_path)
+		# Go directly to streets if timeline fails to load
+		load_streets_scene()
+		return
+	
+	print("Starting introduction dialogue...")
+	Dialogic.start(timeline)
+	Dialogic.timeline_ended.connect(_on_intro_finished)
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func _on_intro_finished() -> void:
+	"""Called when the introduction dialogue finishes"""
+	load_streets_scene()
+
+
+func load_streets_scene() -> void:
+	"""Load the Streets scene (first level)"""
+	var error = get_tree().change_scene_to_file("res://scenes/streets.tscn")
+	if error != OK:
+		push_error("Failed to load streets scene. Error code: %d" % error)

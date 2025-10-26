@@ -28,7 +28,10 @@ directories/dch_directory={
 }
 directories/dtl_directory={
 "dialogic/timeline": "res://src/dialogic/timeline.dtl",
-"introduction": "res://src/dialogic/introduction.dtl"
+"garden_intro": "res://assets/portraits/garden_intro.dtl",
+"introduction": "res://src/dialogic/introduction.dtl",
+"keycard": "res://assets/portraits/keycard.dtl",
+"streets_end": "res://assets/portraits/streets_end.dtl"
 }
 layout/style_directory={}
 glossary/default_case_sensitive=true

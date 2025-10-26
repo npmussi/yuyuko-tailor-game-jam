@@ -129,8 +129,6 @@ func _ready() -> void:
 		bullet_detection_area.body_entered.connect(_on_bullet_hit)
 	
 	assert(sprite != null)
-	const INTRO_TIMELINE = preload("res://src/dialogic/timeline.dtl")
-	Dialogic.start(INTRO_TIMELINE)
 	
 func setup_camera_limits_from_tilemap() -> void:
 	"""Automatically set camera limits based on the TileMap in the scene"""
