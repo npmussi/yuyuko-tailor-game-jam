@@ -95,6 +95,11 @@ const FAN_FIRE_RATE := 0.15  # Time between shots (0.15s = ~6.67 shots per secon
 signal noise_event(origin: Vector2, radius: float, noise_type: String)
 
 func _ready() -> void:
+	# Enable fan in debug builds for testing
+	if OS.is_debug_build():
+		has_fan = true
+		print("DEBUG: Fan weapon enabled automatically.")
+
 	# Add player to group for UI reference
 	add_to_group("player")
 	
@@ -459,6 +464,8 @@ func handle_death_animation(delta: float) -> void:
 	var death_duration = 1.0
 	if death_timer >= death_duration:
 		print("Death complete - restarting game")
+		# Reset keycards and stamina for the restart
+		reset_keycard_variables()
 		restart_game()
 
 func restart_game() -> void:

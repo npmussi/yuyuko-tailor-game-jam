@@ -26,7 +26,7 @@ extends Area2D
 
 @export var win_message := "YOU WIN!"
 @export var restart_delay := 3.0  # Seconds to wait before restarting
-@export var next_level_scene := "res://scenes/garden.tscn"  # Future: Set this to load next level instead of restarting
+@export var next_level_scene := ""  # Set this to load next level (empty = restart current level)
 
 var has_won := false  # Prevent multiple triggers
 var win_ui: CanvasLayer  # Reference to the win screen UI
@@ -129,12 +129,23 @@ func create_win_screen():
 	get_tree().root.add_child(canvas_layer)
 	win_ui = canvas_layer  # Store reference for cleanup
 
+func reset_keycard_variables():
+	"""Resets all Dialogic variables related to keycards to false."""
+	print("Resetting keycard variables for next level...")
+	Dialogic.VAR.set("bluekey", false)
+	Dialogic.VAR.set("redkey", false)
+	Dialogic.VAR.set("greenkey", false)
+	# Add any other keycard variables here if you create more key types
+
 func proceed_to_next_stage():
 	"""Handle what happens after win delay - restart or next level"""
 	
 	print("DEBUG: proceed_to_next_stage called")
 	print("DEBUG: next_level_scene = ", next_level_scene)
 	print("DEBUG: Scene exists? ", ResourceLoader.exists(next_level_scene) if next_level_scene != "" else false)
+	
+	# Reset keycard states before changing level
+	reset_keycard_variables()
 	
 	if next_level_scene != "" and ResourceLoader.exists(next_level_scene):
 		# Load next level

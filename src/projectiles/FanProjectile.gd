@@ -11,6 +11,14 @@ var shooter: Node2D = null  # Track who fired this projectile to ignore them
 signal hit_guard(guard: Node2D)
 
 func _ready() -> void:
+	# Play launch sound
+	var sfx = AudioStreamPlayer.new()
+	sfx.stream = load("res://assets/sound/flaunch.wav")
+	sfx.volume_db = -10
+	get_tree().current_scene.add_child(sfx)  # Add to scene root to persist after projectile is destroyed
+	sfx.play()
+	sfx.finished.connect(sfx.queue_free)
+
 	# Set velocity based on direction
 	linear_velocity = direction * speed
 	
