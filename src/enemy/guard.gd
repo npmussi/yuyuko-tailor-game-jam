@@ -113,6 +113,12 @@ var last_heard_noise_distance := INF  # Track distance to last heard noise
 var noise_cooldown := 0.0  # Cooldown timer for noise responses
 const NOISE_RESPONSE_COOLDOWN := 0.5  # Only respond to noise every 0.5 seconds
 
+# Stuck detection system
+var stuck_detection_timer := 0.0
+var last_position_check := Vector2.ZERO
+const STUCK_CHECK_INTERVAL := 2.0  # Check every 2 seconds
+const STUCK_MOVEMENT_THRESHOLD := 10.0  # If moved less than 10 units in 2 seconds, consider stuck
+
 @onready var nav_agent := $NavigationAgent2D
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var ray_cast := $RayCast2D
@@ -251,6 +257,21 @@ func _physics_process(delta: float) -> void:
 	# Update noise cooldown timer
 	if noise_cooldown > 0.0:
 		noise_cooldown -= delta
+	
+	# Stuck detection for patrol state with multiple patrol points
+	if current_state == GuardState.PATROL and patrol_points.size() > 1:
+		stuck_detection_timer += delta
+		if stuck_detection_timer >= STUCK_CHECK_INTERVAL:
+			var distance_moved = global_position.distance_to(last_position_check)
+			if distance_moved < STUCK_MOVEMENT_THRESHOLD:
+				# Guard hasn't moved significantly - skip to next patrol point
+				if debug_timer >= debug_interval:
+					print("GUARD STUCK DEBUG: Guard at ", global_position, " only moved ", distance_moved, " units in ", STUCK_CHECK_INTERVAL, " seconds - advancing to next patrol point")
+				set_next_patrol_point()
+			
+			# Reset timer and position
+			stuck_detection_timer = 0.0
+			last_position_check = global_position
 	
 	# Track alert timer
 	if current_state == GuardState.ALERT:

@@ -41,7 +41,6 @@ extends CharacterBody2D
 # Stamina system constants
 const MAX_STAMINA := 30.0  # Base stamina amount
 const STAMINA_DRAIN_RATE := 4.0  # Stamina drained per second while sneaking (reduced from 5.0)
-const STAMINA_REGEN_RATE := 2.0  # Stamina regenerated per second when not sneaking
 
 # Camera boundaries (adjust these values to match your level size)
 # Level is positioned at (-256, -144), but we want positive camera limits
@@ -66,7 +65,7 @@ var is_dying := false  # Flag to track death state
 var last_direction := 2 # Direction, numpad
 
 # Stamina system variables
-var current_stamina := MAX_STAMINA  # Start with full stamina
+var current_stamina := 0.0  # Start with empty stamina (must find peaches to sneak)
 var is_sneaking_allowed := true  # Can player sneak (based on stamina and guards)
 
 # Optimization: Cache guard alert check
@@ -313,6 +312,8 @@ func _physics_process(delta: float) -> void:
 		var win_area = get_tree().get_first_node_in_group("win_area")
 		if win_area and global_position.distance_to(win_area.global_position) < 32:
 			print("Player reached the win area! You win!")
+			# Reset all keycard variables before loading next scene
+			reset_keycard_variables()
 			# Restart the game after a short delay
 			get_tree().reload_current_scene()
 	
@@ -486,3 +487,15 @@ func restore_stamina() -> void:
 	"""Restore stamina to full (called by peaches)"""
 	current_stamina = MAX_STAMINA
 	print("Stamina restored to full!")
+
+func reset_keycard_variables() -> void:
+	"""Reset all keycard Dialogic variables when winning a level"""
+	# Reset all known keycard variables to false
+	Dialogic.VAR.set("bluekey", false)
+	Dialogic.VAR.set("redkey", false)
+	Dialogic.VAR.set("greenkey", false)
+	
+	# Reset stamina to empty for the next level
+	current_stamina = 0.0
+	
+	print("All keycard variables reset and stamina emptied")
