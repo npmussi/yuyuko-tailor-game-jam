@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://cuv68b7f85acf"]
 
 [ext_resource type="Script" uid="uid://dp66223x24x4w" path="res://src/enemy/guard.gd" id="1_0ay6c"]
-[ext_resource type="Texture2D" uid="uid://gjifa0fbu36f" path="res://assets/sprites/enemy.png" id="2_enemy"]
+[ext_resource type="Texture2D" uid="uid://cxmj3vbfdcd77" path="res://assets/sprites/59353510_p0.png" id="2_l3hwx"]
 [ext_resource type="Texture2D" uid="uid://dauq5wjmjv6j3" path="res://assets/sprites/icons/alert_exclaim.png" id="3_alert"]
 [ext_resource type="Texture2D" uid="uid://x7jltdrm6vnv" path="res://assets/sprites/icons/investigate_question.png" id="4_question"]
 
@@ -37,8 +37,10 @@ mid_patrol_scan_chance = 0.0
 show_debug_visuals = true
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-scale = Vector2(0.6, 0.6)
-texture = ExtResource("2_enemy")
+scale = Vector2(0.25, 0.25)
+texture = ExtResource("2_l3hwx")
+region_enabled = true
+region_rect = Rect2(48, 0, 48, 48)
 
 [node name="StateIcon" type="AnimatedSprite2D" parent="."]
 visible = false

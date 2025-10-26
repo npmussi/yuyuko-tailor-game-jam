@@ -37,25 +37,20 @@ func _ready():
 	if stamina_label:
 		stamina_label.position = Vector2(20, 20)
 		stamina_label.add_theme_font_size_override("font_size", 20)  # Bigger font
-		stamina_label.add_theme_color_override("font_color", Color.YELLOW)
+		stamina_label.add_theme_color_override("font_color", Color(0.8, 0.2, 1.0)) # Bright purple
 	
 	if movement_label:
-		movement_label.position = Vector2(20, 50)  # Below stamina label
-		movement_label.add_theme_font_size_override("font_size", 20)  # Same size as stamina
-		movement_label.add_theme_color_override("font_color", Color.YELLOW)  # Same color as stamina
-	
+		movement_label.hide() # Hide the movement label
 
 
 func _process(_delta):
 	if player:
-		# Simple text display: "30/30 Stamina"
+		# Display stamina as a percentage
 		if stamina_label:
-			stamina_label.text = "%d/%d Stamina" % [int(player.current_stamina), int(player.MAX_STAMINA)]
+			var percentage = 0.0
+			if player.MAX_STAMINA > 0:
+				percentage = (player.current_stamina / player.MAX_STAMINA) * 100.0
+			stamina_label.text = "Resurrection Butterfly - %d%% Reflowering-" % [int(percentage)]
 		
-		# Display movement state
-		if movement_label:
-			if player.is_sneaking():
-				movement_label.text = "Crouching"
-			else:
-				movement_label.text = "Walking"
+		# Movement label is hidden, no need to update it.
 		

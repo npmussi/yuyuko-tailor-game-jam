@@ -438,6 +438,13 @@ func get_caught() -> void:
 	# Prevent multiple death triggers
 	if is_dying or is_caught:
 		return
+
+	# Play death sound
+	var sfx = AudioStreamPlayer.new()
+	sfx.stream = load("res://assets/sound/SFX_for_SSIB(yuyudie).wav")
+	get_tree().root.add_child(sfx) # Add to root to persist
+	sfx.play()
+	sfx.finished.connect(sfx.queue_free) # Cleanup
 		
 	is_caught = true
 	is_dying = true

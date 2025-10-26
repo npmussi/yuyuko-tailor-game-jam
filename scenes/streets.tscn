@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=4 uid="uid://cu6d0oknnuxbv"]
+[gd_scene load_steps=12 format=4 uid="uid://cu6d0oknnuxbv"]
 
 [ext_resource type="TileSet" uid="uid://c44xp2igb7e41" path="res://assets/tiles/streets.tres" id="1_jbxf2"]
 [ext_resource type="TileSet" uid="uid://cdivq77t31obv" path="res://assets/tiles/avoidancetiles.tres" id="2_vpmn4"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://iq0e87v46g86" path="res://src/keycard/key.tscn" id="9_iy3s6"]
 [ext_resource type="PackedScene" uid="uid://c82dsdw4g0rmw" path="res://src/keycard/door.tscn" id="10_jbxf2"]
 [ext_resource type="PackedScene" uid="uid://h246rwqevrsk" path="res://src/props/WinArea.tscn" id="10_x8w7a"]
+[ext_resource type="AudioStream" uid="uid://bojq1e2ki1tbi" path="res://assets/music/Yuyu_Intro_Orchestrated.mp3" id="11_jbxf2"]
 
 [node name="Streets" type="Node2D"]
 
@@ -286,3 +287,6 @@ position = Vector2(147, 295)
 
 [node name="Door" parent="." instance=ExtResource("10_jbxf2")]
 position = Vector2(552, 505)
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_jbxf2")
