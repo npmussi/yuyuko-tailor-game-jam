@@ -8,7 +8,7 @@ enum UdongeState {
 
 @export var noise_radius := 2000.0 # Radius of noise to lure guards
 @export var noise_type := "udonge" # Type of noise to generate, see guard.gd
-@export var duration := 10.0 # How long it produces noise for
+@export var duration := 4.0 # How long it produces noise for
 @export var noise_interval := 0.5 # How often it produces noise
 
 @onready var sprite: Sprite2D = $Sprite2D

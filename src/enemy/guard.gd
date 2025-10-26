@@ -159,9 +159,15 @@ func freeze_guard() -> void:
 func _ready() -> void:
 	# Auto-bind patrol points from scene if not assigned via export
 	auto_bind_patrol_points()
-
-	if patrol_points.size() < 2:
-		print("Guard ", name, " has ", patrol_points.size(), " patrol points - patrol will be disabled.")
+	
+	# If no patrol points assigned, create a spawn point marker so guard stays at spawn
+	if patrol_points.size() == 0:
+		var spawn_marker = Node2D.new()
+		spawn_marker.name = name + "_SpawnPoint"
+		spawn_marker.global_position = global_position
+		add_child(spawn_marker)
+		patrol_points.append(spawn_marker)
+		#print("Guard ", name, " has no patrol points - created spawn point at ", global_position)
 
 	if target == null:
 		push_warning("Guard has no target assigned; some logic may fail.")
@@ -210,10 +216,9 @@ func setup() -> void:
 	nav_agent.target_desired_distance = 4.0
 	nav_agent.path_max_distance = 10.0
 	
-	if patrol_points.size() > 0:
-		# Pick the closest patrol point as the starting point, then advance to it
-		set_nearest_patrol_as_start()
-		set_next_patrol_point()
+	# Pick the closest patrol point as the starting point, then advance to it
+	set_nearest_patrol_as_start()
+	set_next_patrol_point()
 
 func reset_guard_state() -> void:
 	"""Reset guard to initial patrol state (called on game restart)"""
@@ -260,23 +265,21 @@ func _physics_process(delta: float) -> void:
 		if icon_timer >= icon_duration and current_state != GuardState.ALERT and current_state != GuardState.INVESTIGATE:
 			hide_state_icon()
 	
-	# Handle always_shoot behavior - continuously shoot in facing direction
+	# Handle always_shoot behavior
 	if always_shoot:
-		if debug_timer >= debug_interval:
-			print("DEBUG always_shoot: always_shoot=", always_shoot, " is_shooting=", is_shooting)
-		
 		if !is_shooting:
 			var current_time = Time.get_time_dict_from_system()["second"] + Time.get_time_dict_from_system()["minute"] * 60
 			var time_since_last_shot = current_time - last_shot_time
 			
-			if debug_timer >= debug_interval:
-				print("DEBUG always_shoot: time_since_last_shot=", time_since_last_shot, " shoot_cooldown=", shoot_cooldown)
-			
 			if time_since_last_shot >= shoot_cooldown:
-				# Shoot in the current facing direction
-				var facing_direction = Vector2.RIGHT.rotated(deg_to_rad(current_facing_angle))
-				print("DEBUG always_shoot: FIRING! facing_angle=", current_facing_angle, " direction=", facing_direction)
-				shoot_in_direction(facing_direction)
+				if stationary:
+					# Stationary turrets: shoot in facing direction continuously
+					var facing_direction = Vector2.RIGHT.rotated(deg_to_rad(current_facing_angle))
+					shoot_in_direction(facing_direction)
+				else:
+					# Non-stationary guards: only shoot when they can see the player
+					if can_see_player():
+						shoot_at_player()
 	
 	match current_state:
 		GuardState.PATROL:
@@ -309,14 +312,14 @@ func _physics_process(delta: float) -> void:
 		queue_redraw()
 		return
 	
-	# Improved movement code (only if not scanning)
-	if current_state != GuardState.SCANNING and !nav_agent.is_navigation_finished():
+	# Improved movement code (only if not scanning and has multiple patrol points)
+	if current_state != GuardState.SCANNING and !nav_agent.is_navigation_finished() and (current_state != GuardState.PATROL or patrol_points.size() > 1):
 		var next_pos = nav_agent.get_next_path_position()
 		var dir = global_position.direction_to(next_pos)
 		
 		# Normal movement logic
-		# Update target angle based on movement direction
-		if dir.length() > 0.1:  # Only update when actually moving
+		# Update target angle based on movement direction (but not when shooting)
+		if dir.length() > 0.1 and !is_shooting:  # Only update when actually moving and not shooting
 			target_facing_angle = rad_to_deg(dir.angle())
 		
 		# Ensure consistent movement speed
@@ -328,7 +331,7 @@ func _physics_process(delta: float) -> void:
 		sprite.rotation = deg_to_rad(current_facing_angle + sprite_facing_offset)
 	else:
 		# Navigation fallback: if no path is available, walk directly toward patrol target
-		if current_state == GuardState.PATROL and patrol_points.size() > 0:
+		if current_state == GuardState.PATROL and patrol_points.size() > 1:
 			var patrol_target: Vector2 = patrol_points[current_patrol_index].global_position
 			var dir_fb = global_position.direction_to(patrol_target)
 			if dir_fb.length() > 0.01:
@@ -356,9 +359,10 @@ func handle_patrol_state() -> void:
 		change_state(GuardState.ALERT)
 		return
 	
-	# Debug: Check if we have patrol points and navigation is working
-	if patrol_points.size() == 0:
-		print("Guard ", name, " has no patrol points!")
+	# If only 1 patrol point (spawn point), stay in place - don't try to navigate
+	if patrol_points.size() <= 1:
+		velocity = Vector2.ZERO
+		move_and_slide()
 		return
 	
 	# Check for mid-patrol scanning while moving (only when actually en route)
@@ -390,16 +394,17 @@ func handle_patrol_state() -> void:
 				else:
 					set_next_patrol_point()
 	
-	# Actually move the guard towards the target
-	var direction = nav_agent.get_next_path_position() - global_position
-	direction = direction.normalized()
-	velocity = direction * movement_speed
-	
-	# Update sprite direction based on movement
-	if velocity.length() > 0.1:
-		sprite.rotation = deg_to_rad(current_facing_angle + sprite_facing_offset)
-	
-	move_and_slide()
+	# Actually move the guard towards the target (only if we have multiple patrol points)
+	if patrol_points.size() > 1:
+		var direction = nav_agent.get_next_path_position() - global_position
+		direction = direction.normalized()
+		velocity = direction * movement_speed
+		
+		# Update sprite direction based on movement
+		if velocity.length() > 0.1:
+			sprite.rotation = deg_to_rad(current_facing_angle + sprite_facing_offset)
+		
+		move_and_slide()
 
 func handle_alert_state() -> void:
 	# Always update last known position
@@ -576,7 +581,8 @@ func change_state(new_state: GuardState) -> void:
 			
 			# Debug: Show where we're actually navigating to
 			if debug_timer >= debug_interval:
-				print("GUARD STATE DEBUG: Entering INVESTIGATE state - nav target set to ", investigation_position)
+				#print("GUARD STATE DEBUG: Entering INVESTIGATE state - nav target set to ", investigation_position)
+				pass
 		GuardState.SCANNING:
 			velocity = Vector2.ZERO  # Stop moving while scanning
 	
@@ -644,15 +650,10 @@ func can_see_player() -> bool:
 	if !is_instance_valid(player):
 		return false
 	
-
-	
-	# Check if player is crouched to apply stealth bonuses
-	var is_player_crouched = player.has_method("is_crouching") and player.is_crouching()
-	var stealth_multiplier = 0.75 if is_player_crouched else 1.0  # 25% reduction when crouched
-	
-	# Apply stealth multiplier to ranges
-	var effective_peripheral_range = peripheral_range * stealth_multiplier
-	var effective_detection_range = view_distance * stealth_multiplier
+	# SNEAKING = COMPLETE INVISIBILITY: Guards cannot see sneaking players at all
+	var is_player_crouched = player.has_method("is_sneaking") and player.is_sneaking()
+	if is_player_crouched:
+		return false  # Player is completely invisible when sneaking
 	
 	var distance_to_player = global_position.distance_to(player.global_position)
 	
@@ -662,7 +663,7 @@ func can_see_player() -> bool:
 		return true
 	
 	# Check if player is within detection range first (optimization)
-	if distance_to_player > effective_detection_range:
+	if distance_to_player > view_distance:
 		return false
 	
 	# Check if player is in the vision cone angle
@@ -675,7 +676,7 @@ func can_see_player() -> bool:
 	var player_in_peripheral = false
 	
 	# Check peripheral vision (close range, 360 degrees)
-	if distance_to_player <= effective_peripheral_range:
+	if distance_to_player <= peripheral_range:
 		player_in_peripheral = true
 	
 	# Check main vision cone
@@ -725,19 +726,13 @@ func auto_bind_patrol_points() -> void:
 	# If patrol points are already assigned in the inspector, respect that
 	if patrol_points.size() > 0:
 		return
+	
+	# ONLY check for per-guard patrol points (child container)
 	var container: Node = null
-	# Check for a child container first (per-guard points)
 	if has_node("PatrolPoints"):
 		container = get_node("PatrolPoints")
-	elif get_parent() and get_parent().has_node("PatrolPoints"):
-		container = get_parent().get_node("PatrolPoints")
-	elif get_tree().current_scene:
-		# Try to find at the scene root
-		if get_tree().current_scene.has_node("PatrolPoints"):
-			container = get_tree().current_scene.get_node("PatrolPoints")
-		else:
-			# Fallback to recursive search
-			container = get_tree().current_scene.find_child("PatrolPoints", true, false)
+	
+	# Don't auto-bind global patrol points - guards without assigned points stay at spawn
 	if container:
 		var pts: Array[Node2D] = []
 		for child in container.get_children():
@@ -871,7 +866,14 @@ func shoot_at_player() -> void:
 	
 	# Face the player
 	var direction_to_player = (player.global_position - global_position).normalized()
+	
+	# WARNING: Check if direction is suspiciously only positive X
+	if abs(direction_to_player.x - 1.0) < 0.01 and abs(direction_to_player.y) < 0.01:
+		push_warning("SHOOTING BUG: shoot_at_player() calculated direction=(1.0, 0.0) - guard at ", global_position, ", player at ", player.global_position)
+	
 	target_facing_angle = rad_to_deg(direction_to_player.angle())
+	
+	print("DEBUG shoot_at_player: guard=", global_position, " player=", player.global_position, " direction=", direction_to_player, " angle=", target_facing_angle)
 	
 	# Create bullet immediately (no animation wait)
 	create_bullet(direction_to_player)
@@ -884,7 +886,12 @@ func shoot_at_player() -> void:
 
 func shoot_in_direction(direction: Vector2) -> void:
 	"""Shoot a bullet in the specified direction (for always_shoot mode)"""
-	print("DEBUG shoot_in_direction: Called with direction=", direction, " is_game_over=", is_game_over)
+	
+	# WARNING: Check if direction is suspiciously only positive X
+	if abs(direction.x - 1.0) < 0.01 and abs(direction.y) < 0.01:
+		push_warning("SHOOTING BUG DETECTED: shoot_in_direction() called with direction=(1.0, 0.0) - current_facing_angle=", current_facing_angle, " guard state=", GuardState.keys()[current_state], " guard pos=", global_position)
+	
+	print("DEBUG shoot_in_direction: Called with direction=", direction, " current_facing_angle=", current_facing_angle, " state=", GuardState.keys()[current_state])
 	
 	if is_game_over:
 		print("DEBUG shoot_in_direction: Game over, not shooting")
@@ -892,37 +899,33 @@ func shoot_in_direction(direction: Vector2) -> void:
 	
 	# Set shooting flag briefly
 	is_shooting = true
-	print("DEBUG shoot_in_direction: Creating bullet at ", global_position)
 	
 	# Create bullet immediately
 	create_bullet(direction)
 	
 	# Update last shot time
 	last_shot_time = Time.get_time_dict_from_system()["second"] + Time.get_time_dict_from_system()["minute"] * 60
-	print("DEBUG shoot_in_direction: Updated last_shot_time to ", last_shot_time)
 	
 	# Reset shooting flag after a short delay
 	get_tree().create_timer(0.3).timeout.connect(func(): 
 		is_shooting = false
-		print("DEBUG shoot_in_direction: Shooting flag reset")
 	)
 
 func create_bullet(direction: Vector2) -> void:
-	print("DEBUG create_bullet: Creating bullet with direction=", direction, " speed=", bullet_speed)
+	#print("DEBUG create_bullet: Creating bullet with direction=", direction, " speed=", bullet_speed)
 	
 	# Always create a simple bullet (skip problematic Bullet.tscn)
 	var bullet = create_simple_bullet()
-	print("DEBUG create_bullet: Simple bullet created")
+	#print("DEBUG create_bullet: Simple bullet created")
 	
-	# Add to scene FIRST (before setting position)
-	get_tree().current_scene.add_child(bullet)
-	print("DEBUG create_bullet: Bullet added to scene")
-	
-	# Now set global position (after it's in the scene tree)
+	# Set bullet properties BEFORE adding to scene (so _ready() uses correct values)
 	bullet.global_position = global_position
 	bullet.direction = direction
 	bullet.speed = bullet_speed
-	print("DEBUG create_bullet: Bullet configured at position ", bullet.global_position)
+	
+	# Add to scene AFTER setting properties
+	get_tree().current_scene.add_child(bullet)
+	#print("DEBUG create_bullet: Bullet added to scene at position ", bullet.global_position)
 	
 	# Make bullet ignore the guard that shot it
 	bullet.add_collision_exception_with(self)
@@ -931,7 +934,7 @@ func create_bullet(direction: Vector2) -> void:
 	if bullet.has_signal("hit_player"):
 		bullet.hit_player.connect(_on_bullet_hit_player)
 	
-	print("DEBUG create_bullet: Bullet fully configured and ready")
+	#print("DEBUG create_bullet: Bullet fully configured and ready")
 
 func create_simple_bullet() -> Node2D:
 	# Create a simple bullet using built-in nodes
@@ -1124,13 +1127,7 @@ func _draw() -> void:
 				draw_line(start, end, Color.YELLOW, 1.0)
 		return
 	
-	# Calculate effective ranges based on player stealth state
-	var is_player_crouched = false
-	if is_instance_valid(player) and player.has_method("is_crouching"):
-		is_player_crouched = player.is_crouching()
-	
-	var stealth_multiplier = 0.75 if is_player_crouched else 1.0
-	var effective_detection_range = view_distance * stealth_multiplier
+	var effective_detection_range = view_distance
 	
 	# Draw patrol lines
 	if patrol_points.size() >= 2:
@@ -1145,8 +1142,6 @@ func _draw() -> void:
 	var cone_color = Color.RED if current_state == GuardState.ALERT else Color.GREEN
 	if current_state == GuardState.SCANNING:
 		cone_color = Color.BLUE
-	if is_player_crouched:
-		cone_color = Color.PURPLE  # Different color when stealth is active
 	cone_color.a = 0.2
 	
 	var points = PackedVector2Array()
