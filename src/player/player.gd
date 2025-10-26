@@ -88,6 +88,8 @@ var terrain_noise_multiplier := 1.0  # Multiplier for current terrain (1.0 = nor
 # Fan weapon system
 var has_fan := false  # Track if player has picked up the fan weapon
 var fan_projectile_speed := 300.0  # Speed of fan projectiles
+var fan_cooldown := 0.0  # Cooldown timer for fan shooting
+const FAN_FIRE_RATE := 0.15  # Time between shots (0.15s = ~6.67 shots per second)
 
 # Event-based noise system (MGS style)
 signal noise_event(origin: Vector2, radius: float, noise_type: String)
@@ -283,6 +285,9 @@ func _physics_process(delta: float) -> void:
 	# Update noise event timer
 	noise_event_timer += delta
 	
+	# Update fan weapon cooldown
+	if fan_cooldown > 0.0:
+		fan_cooldown -= delta
 	
 	# Update cached guard check periodically (performance optimization)
 	update_crouch_cache(delta)
@@ -321,9 +326,10 @@ func _physics_process(delta: float) -> void:
 			# Restart the game after a short delay
 			get_tree().reload_current_scene()
 	
-	# Fan weapon: Press ui_cancel to shoot guard-destroying projectile
-	if Input.is_action_just_pressed("ui_cancel") and has_fan:
+	# Fan weapon: Hold ui_cancel for rapid fire guard-destroying projectiles
+	if Input.is_action_pressed("ui_cancel") and has_fan and fan_cooldown <= 0.0:
 		shoot_fan_projectile()
+		fan_cooldown = FAN_FIRE_RATE  # Reset cooldown
 	
 
 	
@@ -534,6 +540,7 @@ func shoot_fan_projectile() -> void:
 	projectile.global_position = global_position
 	projectile.direction = shoot_direction
 	projectile.speed = fan_projectile_speed
+	projectile.shooter = self  # Set shooter so projectile can ignore player collision
 	
 	get_tree().current_scene.add_child(projectile)
 	
@@ -544,9 +551,13 @@ func create_fan_projectile() -> Node2D:
 	var projectile = RigidBody2D.new()
 	projectile.set_script(preload("res://src/projectiles/FanProjectile.gd"))
 	
-	# Set collision layers - interact with guards
+	# Set collision layers - CRITICAL: Must collide with guards on layer 1
 	projectile.collision_layer = 32  # Layer 6 (player projectiles) = 2^5 = 32
-	projectile.collision_mask = 3    # Layers 1 + 2 (guards + walls) = 1 + 2 = 3
+	projectile.collision_mask = 7    # Layers 1 + 2 + 3 (guards + walls + obstacles) = 1 + 2 + 4 = 7
+	
+	# Enable contact monitoring for collision detection
+	projectile.contact_monitor = true
+	projectile.max_contacts_reported = 4
 	
 	# Add visual (cyan/blue spinning effect)
 	var sprite_node = Sprite2D.new()
@@ -567,6 +578,7 @@ func create_fan_projectile() -> Node2D:
 	
 	texture.set_image(image)
 	sprite_node.texture = texture
+	sprite_node.name = "Sprite2D"  # Name it so FanProjectile can find it
 	projectile.add_child(sprite_node)
 	
 	# Add collision shape

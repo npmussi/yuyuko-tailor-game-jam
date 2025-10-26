@@ -6,12 +6,17 @@ extends RigidBody2D
 var direction := Vector2.RIGHT
 var speed := 300.0
 var lifetime := 5.0  # Projectile disappears after 5 seconds
+var shooter: Node2D = null  # Track who fired this projectile to ignore them
 
 signal hit_guard(guard: Node2D)
 
 func _ready() -> void:
 	# Set velocity based on direction
 	linear_velocity = direction * speed
+	
+	# Set RigidBody2D properties for better collision detection
+	contact_monitor = true
+	max_contacts_reported = 4
 	
 	# Auto-destroy after lifetime
 	get_tree().create_timer(lifetime).timeout.connect(queue_free)
@@ -21,6 +26,14 @@ func _ready() -> void:
 	
 	# Disable gravity
 	gravity_scale = 0.0
+	
+	# Make it continuous collision detection for fast projectiles
+	continuous_cd = RigidBody2D.CCD_MODE_CAST_RAY
+	
+	# Ignore collision with the shooter (player)
+	if shooter:
+		add_collision_exception_with(shooter)
+		print("FanProjectile ignoring collision with shooter: ", shooter.name)
 	
 	# Add rotation for visual effect
 	var sprite = get_node_or_null("Sprite2D")
@@ -32,9 +45,9 @@ func _ready() -> void:
 	print("FanProjectile ready: direction=", direction, " speed=", speed)
 
 func _on_body_entered(body: Node) -> void:
-	print("FanProjectile hit: ", body.name)
+	print("FanProjectile hit: ", body.name, " (type: ", body.get_class(), ")")
 	
-	# Check if we hit a guard
+	# Check if we hit a guard (they're in the "guards" group)
 	if body.is_in_group("guards"):
 		print("FanProjectile destroying guard: ", body.name)
 		# Instantly destroy the guard
@@ -46,8 +59,9 @@ func _on_body_entered(body: Node) -> void:
 		
 		# Destroy the projectile
 		queue_free()
-	elif body.collision_layer & 2:  # Hit a wall (layer 2)
-		print("FanProjectile hit wall, destroying")
+	else:
+		# Hit something else (wall, obstacle, etc.) - destroy projectile
+		print("FanProjectile hit non-guard object (", body.name, "), destroying projectile")
 		queue_free()
 
 func create_destruction_effect() -> void:
