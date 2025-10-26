@@ -1,10 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://iq0e87v46g86"]
+[gd_scene load_steps=4 format=3 uid="uid://iq0e87v46g86"]
+
+[ext_resource type="Script" uid="uid://cp2ppteve18sm" path="res://src/keycard/key.gd" id="1_i05a3"]
+[ext_resource type="Texture2D" uid="uid://swhhsne5q3vt" path="res://assets/sprites/key.png" id="1_mviyl"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_k0uhg"]
 
-[node name="Key" type="StaticBody2D"]
+[node name="Key" type="CharacterBody2D"]
+script = ExtResource("1_i05a3")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_k0uhg")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_mviyl")

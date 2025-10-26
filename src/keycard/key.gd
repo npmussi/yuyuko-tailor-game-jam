@@ -8,6 +8,8 @@ extends Interactable
 @export var pickup_message := "Keycard acquired!"
 
 func _ready() -> void:
+	super._ready()  # Call parent's _ready() to add to group
+	
 	# Color the keycard based on the variable type
 	var sprite = get_node_or_null("Sprite2D")
 	if sprite:

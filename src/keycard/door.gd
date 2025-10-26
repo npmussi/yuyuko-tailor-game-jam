@@ -1,4 +1,4 @@
-extends StaticBody2D
+extends Interactable
 
 ## Door that can be unlocked by a keycard
 ## Disappears when unlocked
@@ -9,6 +9,7 @@ extends StaticBody2D
 @export var is_locked := true
 
 func _ready() -> void:
+	super._ready()  # Call parent's _ready() to add to group
 	add_to_group("doors")
 	
 	# Color the door based on the keycard type

@@ -203,7 +203,7 @@ func update_crouch_cache(delta: float) -> void:
 func update_stamina(delta: float) -> void:
 	"""Update stamina based on current state"""
 	if current_state == MovementState.SNEAKING:
-		# Drain stamina while sneaking (5 stamina per second)
+		# Drain stamina while sneaking (4 stamina per second)
 		current_stamina -= STAMINA_DRAIN_RATE * delta
 		current_stamina = max(0.0, current_stamina)  # Don't go below 0
 		
@@ -211,10 +211,7 @@ func update_stamina(delta: float) -> void:
 		if current_stamina <= 0.0:
 			current_state = MovementState.WALKING
 			current_noise_level = 10
-	else:
-		# Regenerate stamina when not sneaking (3 stamina per second)
-		current_stamina += STAMINA_REGEN_RATE * delta
-		current_stamina = min(MAX_STAMINA, current_stamina)  # Don't exceed max
+	# Stamina NO LONGER regenerates automatically - must eat peaches!
 
 func activate_nearby_objects() -> void:
 	"""Activate/interact with nearby objects in front of the player.
@@ -484,3 +481,8 @@ func is_any_guard_alerted() -> bool:
 		if guard.has_method("get_current_state") and guard.get_current_state() == 1:  # GuardState.ALERT = 1
 			return true
 	return false
+
+func restore_stamina() -> void:
+	"""Restore stamina to full (called by peaches)"""
+	current_stamina = MAX_STAMINA
+	print("Stamina restored to full!")
