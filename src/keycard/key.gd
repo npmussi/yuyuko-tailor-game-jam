@@ -15,11 +15,11 @@ func _ready() -> void:
 	if sprite:
 		match keycard_variable:
 			"bluekey":
-				sprite.modulate = Color(0.3, 0.5, 1.0)  # Blue
+				sprite.modulate = Color(0.6, 0.8, 1.0)  # Bright Blue
 			"redkey":
-				sprite.modulate = Color(1.0, 0.3, 0.3)  # Red
+				sprite.modulate = Color(1.0, 0.6, 0.6)  # Bright Red
 			"greenkey":
-				sprite.modulate = Color(0.3, 1.0, 0.3)  # Green
+				sprite.modulate = Color(0.6, 1.0, 0.6)  # Bright Green
 			_:
 				sprite.modulate = Color.WHITE  # Default white
 

@@ -8,9 +8,9 @@ extends Control
 @export var first_level_scene := "res://scenes/streets.tscn"  # Which level to load on start
 
 @onready var background: ColorRect = $Background
-@onready var press_start_label: Label = $VBoxContainer/PressStartLabel
-@onready var title_label: Label = $VBoxContainer/TitleLabel
-@onready var controls_label: Label = $VBoxContainer/ControlsLabel
+@onready var press_start_label: Label = $MarginContainer/VBoxContainer/PressStartLabel
+@onready var title_label: Label = $MarginContainer/VBoxContainer/TitleLabel
+@onready var controls_label: Label = $MarginContainer/VBoxContainer/ControlsLabel
 @onready var animation_timer: Timer = $AnimationTimer
 
 var can_start := true
@@ -43,9 +43,10 @@ func _process(_delta: float) -> void:
 
 func _on_blink_timer() -> void:
 	"""Make 'Press Start' blink"""
-	if press_start_label:
-		blink_visible = !blink_visible
-		press_start_label.visible = blink_visible
+	pass
+	#if press_start_label:
+	#	blink_visible = !blink_visible
+	#	press_start_label.visible = blink_visible
 
 func start_game() -> void:
 	"""Load the first level"""

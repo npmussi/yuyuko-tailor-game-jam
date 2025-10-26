@@ -96,16 +96,16 @@ position = Vector2(540, 87)
 position = Vector2(450, 35)
 
 [node name="RedCardNE" type="Node2D" parent="PatrolPoints"]
-position = Vector2(729, 126)
+position = Vector2(729, 150)
 
 [node name="RedCardNW" type="Node2D" parent="PatrolPoints"]
-position = Vector2(665, 123)
+position = Vector2(666, 151)
 
 [node name="RedCardSW" type="Node2D" parent="PatrolPoints"]
-position = Vector2(665, 176)
+position = Vector2(665, 197)
 
 [node name="RedCardSE" type="Node2D" parent="PatrolPoints"]
-position = Vector2(730, 176)
+position = Vector2(731, 196)
 
 [node name="RGateS" type="Node2D" parent="PatrolPoints"]
 position = Vector2(770, 432)

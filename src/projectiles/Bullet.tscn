@@ -37,21 +37,21 @@ gravity_scale = 0.0
 linear_damp = 0.0
 script = ExtResource("1_2k3ql")
 
-[node name="Sprite2D" type="Sprite2D"]
+[node name="Sprite2D" type="Sprite2D" parent="."]
 material = SubResource("CanvasItemMaterial_glow")
 modulate = Color(1, 1, 0, 1)
 scale = Vector2(1.0, 1.0)
 
-[node name="CollisionShape2D" type="CollisionShape2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_1hdqw")
 
-[node name="GPUParticles2D" type="GPUParticles2D"]
+[node name="GPUParticles2D" type="GPUParticles2D" parent="."]
 emitting = false
 amount = 50
 process_material = SubResource("ParticleProcessMaterial_trail")
 lifetime = 0.5
 
-[node name="ImpactParticles" type="GPUParticles2D"]
+[node name="ImpactParticles" type="GPUParticles2D" parent="."]
 emitting = false
 amount = 30
 process_material = SubResource("ParticleProcessMaterial_impact")

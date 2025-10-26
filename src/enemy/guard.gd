@@ -1141,22 +1141,9 @@ func _draw() -> void:
 	# Don't draw vision cones if any guard is alerted
 	if any_guard_alerted:
 		# Still draw patrol lines but no vision cones
-		if patrol_points.size() >= 2:
-			for i in patrol_points.size():
-				var start = patrol_points[i].global_position - global_position
-				var end = patrol_points[(i + 1) % patrol_points.size()].global_position - global_position
-				draw_line(start, end, Color.YELLOW, 1.0)
 		return
 	
 	var effective_detection_range = view_distance
-	
-	# Draw patrol lines
-	if patrol_points.size() >= 2:
-		for i in patrol_points.size():
-			var start = patrol_points[i].global_position - global_position
-			var end = patrol_points[(i + 1) % patrol_points.size()].global_position - global_position
-			draw_line(start, end, Color.YELLOW, 1.0)
-	
 	# Note: Peripheral vision circle removed - will be shown via inventory device later
 	
 	# Draw main vision cone (using effective range)

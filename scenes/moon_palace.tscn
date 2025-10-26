@@ -116,49 +116,49 @@ position = Vector2(1179, 69)
 [node name="FinalRoom" type="Node2D" parent="PatrolPoints"]
 
 [node name="NE2" type="Node2D" parent="PatrolPoints/FinalRoom"]
-position = Vector2(629, 196)
+position = Vector2(605, 191)
 
 [node name="NW2" type="Node2D" parent="PatrolPoints/FinalRoom"]
 position = Vector2(534, 199)
 
 [node name="NE1" type="Node2D" parent="PatrolPoints/FinalRoom"]
-position = Vector2(670, 172)
+position = Vector2(635, 175)
 
 [node name="NW1" type="Node2D" parent="PatrolPoints/FinalRoom"]
 position = Vector2(537, 171)
 
 [node name="NE3" type="Node2D" parent="PatrolPoints/FinalRoom"]
-position = Vector2(669, 220)
+position = Vector2(639, 224)
 
 [node name="NW3" type="Node2D" parent="PatrolPoints/FinalRoom"]
 position = Vector2(535, 222)
 
 [node name="NE4" type="Node2D" parent="PatrolPoints/FinalRoom"]
-position = Vector2(632, 242)
+position = Vector2(602, 238)
 
 [node name="NW4" type="Node2D" parent="PatrolPoints/FinalRoom"]
 position = Vector2(534, 243)
 
 [node name="NE5" type="Node2D" parent="PatrolPoints/FinalRoom"]
-position = Vector2(631, 298)
+position = Vector2(602, 302)
 
 [node name="NW5" type="Node2D" parent="PatrolPoints/FinalRoom"]
 position = Vector2(538, 300)
 
 [node name="NE6" type="Node2D" parent="PatrolPoints/FinalRoom"]
-position = Vector2(664, 270)
+position = Vector2(642, 275)
 
 [node name="NW6" type="Node2D" parent="PatrolPoints/FinalRoom"]
 position = Vector2(535, 268)
 
 [node name="NE7" type="Node2D" parent="PatrolPoints/FinalRoom"]
-position = Vector2(665, 322)
+position = Vector2(642, 335)
 
 [node name="NW7" type="Node2D" parent="PatrolPoints/FinalRoom"]
 position = Vector2(542, 324)
 
 [node name="NE8" type="Node2D" parent="PatrolPoints/FinalRoom"]
-position = Vector2(629, 353)
+position = Vector2(611, 366)
 
 [node name="NW8" type="Node2D" parent="PatrolPoints/FinalRoom"]
 position = Vector2(540, 355)
@@ -448,15 +448,6 @@ always_shoot = true
 
 [node name="FinalBoss" type="Node2D" parent="."]
 
-[node name="Walker2" parent="FinalBoss" node_paths=PackedStringArray("patrol_points", "target") instance=ExtResource("5_ugc70")]
-position = Vector2(515, 173)
-collision_layer = 3
-collision_mask = 22
-motion_mode = 1
-wall_min_slide_angle = 0.0
-patrol_points = [NodePath("../../PatrolPoints/FinalRoom/NW1"), NodePath("../../PatrolPoints/FinalRoom/NE1")]
-target = NodePath("../../Yuyuko")
-
 [node name="7" parent="FinalBoss" node_paths=PackedStringArray("target") instance=ExtResource("5_ugc70")]
 position = Vector2(142, 736)
 collision_layer = 3
@@ -508,15 +499,6 @@ wall_min_slide_angle = 0.0
 stationary = true
 target = NodePath("../../../Yuyuko")
 
-[node name="13" parent="FinalBoss/Fan" node_paths=PackedStringArray("target") instance=ExtResource("5_ugc70")]
-position = Vector2(125, 399)
-collision_layer = 3
-collision_mask = 22
-motion_mode = 1
-wall_min_slide_angle = 0.0
-stationary = true
-target = NodePath("../../../Yuyuko")
-
 [node name="14" parent="FinalBoss/Fan" node_paths=PackedStringArray("target") instance=ExtResource("5_ugc70")]
 position = Vector2(125, 319)
 collision_layer = 3
@@ -554,15 +536,6 @@ wall_min_slide_angle = 0.0
 patrol_points = [NodePath("../../PatrolPoints/FinalRoom/NW2"), NodePath("../../PatrolPoints/FinalRoom/NE2")]
 target = NodePath("../../Yuyuko")
 
-[node name="Walker4" parent="FinalBoss" node_paths=PackedStringArray("patrol_points", "target") instance=ExtResource("5_ugc70")]
-position = Vector2(513, 223)
-collision_layer = 3
-collision_mask = 22
-motion_mode = 1
-wall_min_slide_angle = 0.0
-patrol_points = [NodePath("../../PatrolPoints/FinalRoom/NW3"), NodePath("../../PatrolPoints/FinalRoom/NE3")]
-target = NodePath("../../Yuyuko")
-
 [node name="Walker5" parent="FinalBoss" node_paths=PackedStringArray("patrol_points", "target") instance=ExtResource("5_ugc70")]
 position = Vector2(511, 243)
 collision_layer = 3
@@ -572,15 +545,6 @@ wall_min_slide_angle = 0.0
 patrol_points = [NodePath("../../PatrolPoints/FinalRoom/NW4"), NodePath("../../PatrolPoints/FinalRoom/NE4")]
 target = NodePath("../../Yuyuko")
 
-[node name="Walker6" parent="FinalBoss" node_paths=PackedStringArray("patrol_points", "target") instance=ExtResource("5_ugc70")]
-position = Vector2(512, 272)
-collision_layer = 3
-collision_mask = 22
-motion_mode = 1
-wall_min_slide_angle = 0.0
-patrol_points = [NodePath("../../PatrolPoints/FinalRoom/NW5"), NodePath("../../PatrolPoints/FinalRoom/NE5")]
-target = NodePath("../../Yuyuko")
-
 [node name="Walker7" parent="FinalBoss" node_paths=PackedStringArray("patrol_points", "target") instance=ExtResource("5_ugc70")]
 position = Vector2(510, 299)
 collision_layer = 3
@@ -588,15 +552,6 @@ collision_mask = 22
 motion_mode = 1
 wall_min_slide_angle = 0.0
 patrol_points = [NodePath("../../PatrolPoints/FinalRoom/NW6"), NodePath("../../PatrolPoints/FinalRoom/NE6")]
-target = NodePath("../../Yuyuko")
-
-[node name="Walker8" parent="FinalBoss" node_paths=PackedStringArray("patrol_points", "target") instance=ExtResource("5_ugc70")]
-position = Vector2(512, 325)
-collision_layer = 3
-collision_mask = 22
-motion_mode = 1
-wall_min_slide_angle = 0.0
-patrol_points = [NodePath("../../PatrolPoints/FinalRoom/NW7"), NodePath("../../PatrolPoints/FinalRoom/NE7")]
 target = NodePath("../../Yuyuko")
 
 [node name="Walker9" parent="FinalBoss" node_paths=PackedStringArray("patrol_points", "target") instance=ExtResource("5_ugc70")]
@@ -676,5 +631,4 @@ position = Vector2(650, 954)
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("12_abcde")
 autoplay = true
-stream_paused = true
 parameters/looping = true

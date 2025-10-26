@@ -224,16 +224,14 @@ func update_stamina(delta: float) -> void:
 	# Stamina NO LONGER regenerates automatically - must eat peaches!
 
 func activate_nearby_objects() -> void:
-	"""Activate/interact with nearby objects in front of the player.
-	This basically:
-		1. Create a circle in front of the player
-		2. Checks all objects in that circle
-		3. Runs any object's 'activate' method if it exists
+	"""Activate/interact with nearby objects that aren't behind the player.
+	More lenient than before - as long as the object isn't behind you, you can interact with it.
 	"""
-	var interaction_distance := 16.0  # Distance to check for interactable objects
+	var interaction_radius := 32.0  # Larger radius for more lenient interaction
 	var direction_vector := Vector2.ZERO
 	
-	match last_direction: # Be very dumb if we could activate without looking at it.
+	# Get the direction the player is facing
+	match last_direction:
 		8: direction_vector = Vector2(0, -1)  # Up
 		2: direction_vector = Vector2(0, 1)   # Down
 		4: direction_vector = Vector2(-1, 0)  # Left
@@ -243,25 +241,45 @@ func activate_nearby_objects() -> void:
 		1: direction_vector = Vector2(-1, 1).normalized()   # Down-Left
 		3: direction_vector = Vector2(1, 1).normalized()    # Down-Right
 	
-	var check_position = global_position + (direction_vector * interaction_distance)
+	# Find all objects in a circle around the player
 	var space_state = get_world_2d().direct_space_state
-	
-	# Create query parameters for point intersection
-	var params = PhysicsPointQueryParameters2D.new()
-	params.position = check_position
+	var params = PhysicsShapeQueryParameters2D.new()
+	var shape = CircleShape2D.new()
+	shape.radius = interaction_radius
+	params.shape = shape
+	params.transform = Transform2D(0, global_position)
 	params.collide_with_areas = true
 	params.collide_with_bodies = true
 	
-	var result = space_state.intersect_point(params)
+	var results = space_state.intersect_shape(params)
 	
-	print("Checking interaction at position: ", check_position, " found ", result.size(), " objects.")
-	for hit in result:
-		print("Hit object: ", hit.collider.name, " and is in group 'interactable': ", hit.collider.is_in_group("interactable"))
+	var closest_object = null
+	var closest_distance = INF
+	
+	# Check each object to see if it's in front of us (not behind)
+	for hit in results:
 		var obj = hit.collider
 		if obj and obj.is_in_group("interactable"):
-			obj.activate()
-			print("Activated object: ", obj.name)
-			return  # Only activate one object at a time
+			# Calculate the direction to the object
+			var to_object = (obj.global_position - global_position).normalized()
+			
+			# Check if the object is generally in front of us (dot product > 0 means forward)
+			var dot = direction_vector.dot(to_object)
+			
+			# If dot product is > -0.3, the object is not directly behind us
+			# This allows interaction with objects to the sides
+			if dot > -0.3:
+				var distance = global_position.distance_to(obj.global_position)
+				if distance < closest_distance:
+					closest_distance = distance
+					closest_object = obj
+	
+	# Activate the closest valid object
+	if closest_object:
+		print("Activating object: ", closest_object.name, " at distance: ", closest_distance)
+		closest_object.activate()
+	else:
+		print("No interactable objects found in front of player")
 
 func _on_bullet_hit(body: Node) -> void:
 	"""Called when a bullet hits the player's detection area"""

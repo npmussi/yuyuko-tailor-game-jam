@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://cl4ahrgpf8fiu"]
 
-[ext_resource type="Script" path="res://src/ui/TitleScreen.gd" id="1_lficp"]
-[ext_resource type="AudioStream" path="res://assets/music/Yuyu_Intro_Orchestrated.mp3" id="2_v2wgv"]
+[ext_resource type="Script" uid="uid://bi274jmw7dpnb" path="res://src/ui/TitleScreen.gd" id="1_lficp"]
+[ext_resource type="AudioStream" uid="uid://bojq1e2ki1tbi" path="res://assets/music/Yuyu_Intro_Orchestrated.mp3" id="2_v2wgv"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_riebt"]
 font_size = 48
@@ -62,20 +62,18 @@ custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 
 [node name="ControlsLabel" type="Label" parent="MarginContainer/VBoxContainer"]
-	layout_mode = 2
-	text = "CONTROLS:
+layout_mode = 2
+text = "CONTROLS:
 Arrow Keys - Move
 Z or Enter - Interact
 C - Resurrection Butterfly (when available)
 X - Fan Attack (when available)"
-	horizontal_alignment = 1
+horizontal_alignment = 1
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("2_v2wgv")
 autoplay = true
 
-
 [node name="AnimationTimer" type="Timer" parent="."]
 wait_time = 0.5
 autostart = true
-
