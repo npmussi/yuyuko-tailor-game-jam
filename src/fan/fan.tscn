@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://d1j1igx6vb304"]
+
+[ext_resource type="Script" uid="uid://daefmn1f8s305" path="res://src/fan/fan.gd" id="1_q55hx"]
+[ext_resource type="Texture2D" uid="uid://dmhunxcgqksxc" path="res://assets/sprites/fan.png" id="2_q55hx"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gxryp"]
+
+[node name="Fan" type="CharacterBody2D"]
+script = ExtResource("1_q55hx")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_q55hx")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_gxryp")

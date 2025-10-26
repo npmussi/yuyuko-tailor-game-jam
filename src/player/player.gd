@@ -85,6 +85,10 @@ var noise_event_interval := 0.1  # Emit noise events 10 times per second while m
 # Terrain noise system
 var terrain_noise_multiplier := 1.0  # Multiplier for current terrain (1.0 = normal, 2.0 = double noise)
 
+# Fan weapon system
+var has_fan := false  # Track if player has picked up the fan weapon
+var fan_projectile_speed := 300.0  # Speed of fan projectiles
+
 # Event-based noise system (MGS style)
 signal noise_event(origin: Vector2, radius: float, noise_type: String)
 
@@ -317,6 +321,10 @@ func _physics_process(delta: float) -> void:
 			# Restart the game after a short delay
 			get_tree().reload_current_scene()
 	
+	# Fan weapon: Press ui_cancel to shoot guard-destroying projectile
+	if Input.is_action_just_pressed("ui_cancel") and has_fan:
+		shoot_fan_projectile()
+	
 
 	
 	# Debug: Print current position (P key)
@@ -499,3 +507,73 @@ func reset_keycard_variables() -> void:
 	current_stamina = 0.0
 	
 	print("All keycard variables reset and stamina emptied")
+
+func pickup_fan() -> void:
+	"""Called when player picks up the fan weapon"""
+	has_fan = true
+	print("Fan weapon acquired! Press Escape/Cancel to shoot guard-destroying projectiles!")
+
+func shoot_fan_projectile() -> void:
+	"""Shoot a fan projectile that instantly destroys guards"""
+	print("Shooting fan projectile!")
+	
+	# Determine shoot direction based on last_direction (numpad style)
+	var shoot_direction := Vector2.ZERO
+	match last_direction:
+		8: shoot_direction = Vector2(0, -1)  # Up
+		2: shoot_direction = Vector2(0, 1)   # Down
+		4: shoot_direction = Vector2(-1, 0)  # Left
+		6: shoot_direction = Vector2(1, 0)   # Right
+		7: shoot_direction = Vector2(-1, -1).normalized()  # Up-Left
+		9: shoot_direction = Vector2(1, -1).normalized()   # Up-Right
+		1: shoot_direction = Vector2(-1, 1).normalized()   # Down-Left
+		3: shoot_direction = Vector2(1, 1).normalized()    # Down-Right
+	
+	# Create the fan projectile
+	var projectile = create_fan_projectile()
+	projectile.global_position = global_position
+	projectile.direction = shoot_direction
+	projectile.speed = fan_projectile_speed
+	
+	get_tree().current_scene.add_child(projectile)
+	
+	print("Fan projectile created, direction: ", shoot_direction)
+
+func create_fan_projectile() -> Node2D:
+	"""Create a fan projectile that destroys guards on contact"""
+	var projectile = RigidBody2D.new()
+	projectile.set_script(preload("res://src/projectiles/FanProjectile.gd"))
+	
+	# Set collision layers - interact with guards
+	projectile.collision_layer = 32  # Layer 6 (player projectiles) = 2^5 = 32
+	projectile.collision_mask = 3    # Layers 1 + 2 (guards + walls) = 1 + 2 = 3
+	
+	# Add visual (cyan/blue spinning effect)
+	var sprite_node = Sprite2D.new()
+	var texture = ImageTexture.new()
+	var image = Image.create(12, 12, false, Image.FORMAT_RGBA8)
+	
+	# Create a fan-shaped visual (cyan color)
+	for x in range(12):
+		for y in range(12):
+			var center = Vector2(6, 6)
+			var distance = Vector2(x, y).distance_to(center)
+			if distance <= 5.0:
+				# Create a gradient effect
+				var alpha = 1.0 - (distance / 5.0) * 0.5
+				image.set_pixel(x, y, Color.CYAN * Color(1, 1, 1, alpha))
+			else:
+				image.set_pixel(x, y, Color.TRANSPARENT)
+	
+	texture.set_image(image)
+	sprite_node.texture = texture
+	projectile.add_child(sprite_node)
+	
+	# Add collision shape
+	var collision = CollisionShape2D.new()
+	var shape = CircleShape2D.new()
+	shape.radius = 4.0
+	collision.shape = shape
+	projectile.add_child(collision)
+	
+	return projectile
