@@ -62,6 +62,7 @@ const MOVEMENT_THRESHOLD := 5.0  # Minimum velocity to be considered "moving" (s
 @export var chase_range := 100.0  # Maximum range to start chasing player
 @export var shoot_cooldown := 1.0  # Time between shots
 @export var bullet_speed := 150.0  # Speed of the bullet
+@export var always_shoot := false # If true, guard continuously shoots in facing direction
 
 # Behavior System
 @export var investigation_wait_time := 3.0  # Time to investigate at a location
@@ -258,6 +259,24 @@ func _physics_process(delta: float) -> void:
 		# Only hide icon after timer if NOT in alert or investigation state
 		if icon_timer >= icon_duration and current_state != GuardState.ALERT and current_state != GuardState.INVESTIGATE:
 			hide_state_icon()
+	
+	# Handle always_shoot behavior - continuously shoot in facing direction
+	if always_shoot:
+		if debug_timer >= debug_interval:
+			print("DEBUG always_shoot: always_shoot=", always_shoot, " is_shooting=", is_shooting)
+		
+		if !is_shooting:
+			var current_time = Time.get_time_dict_from_system()["second"] + Time.get_time_dict_from_system()["minute"] * 60
+			var time_since_last_shot = current_time - last_shot_time
+			
+			if debug_timer >= debug_interval:
+				print("DEBUG always_shoot: time_since_last_shot=", time_since_last_shot, " shoot_cooldown=", shoot_cooldown)
+			
+			if time_since_last_shot >= shoot_cooldown:
+				# Shoot in the current facing direction
+				var facing_direction = Vector2.RIGHT.rotated(deg_to_rad(current_facing_angle))
+				print("DEBUG always_shoot: FIRING! facing_angle=", current_facing_angle, " direction=", facing_direction)
+				shoot_in_direction(facing_direction)
 	
 	match current_state:
 		GuardState.PATROL:
@@ -863,17 +882,47 @@ func shoot_at_player() -> void:
 	# Reset shooting flag after a longer delay for better aim (increased from 0.5 to 0.8)
 	get_tree().create_timer(0.8).timeout.connect(func(): is_shooting = false)
 
+func shoot_in_direction(direction: Vector2) -> void:
+	"""Shoot a bullet in the specified direction (for always_shoot mode)"""
+	print("DEBUG shoot_in_direction: Called with direction=", direction, " is_game_over=", is_game_over)
+	
+	if is_game_over:
+		print("DEBUG shoot_in_direction: Game over, not shooting")
+		return
+	
+	# Set shooting flag briefly
+	is_shooting = true
+	print("DEBUG shoot_in_direction: Creating bullet at ", global_position)
+	
+	# Create bullet immediately
+	create_bullet(direction)
+	
+	# Update last shot time
+	last_shot_time = Time.get_time_dict_from_system()["second"] + Time.get_time_dict_from_system()["minute"] * 60
+	print("DEBUG shoot_in_direction: Updated last_shot_time to ", last_shot_time)
+	
+	# Reset shooting flag after a short delay
+	get_tree().create_timer(0.3).timeout.connect(func(): 
+		is_shooting = false
+		print("DEBUG shoot_in_direction: Shooting flag reset")
+	)
+
 func create_bullet(direction: Vector2) -> void:
+	print("DEBUG create_bullet: Creating bullet with direction=", direction, " speed=", bullet_speed)
+	
 	# Always create a simple bullet (skip problematic Bullet.tscn)
 	var bullet = create_simple_bullet()
+	print("DEBUG create_bullet: Simple bullet created")
 	
-	# Use guard's actual position, not global_position
-	# The guard's sprite appears to be at position, not global_position
-	var spawn_position = position
+	# Add to scene FIRST (before setting position)
+	get_tree().current_scene.add_child(bullet)
+	print("DEBUG create_bullet: Bullet added to scene")
 	
-	bullet.position = spawn_position
+	# Now set global position (after it's in the scene tree)
+	bullet.global_position = global_position
 	bullet.direction = direction
 	bullet.speed = bullet_speed
+	print("DEBUG create_bullet: Bullet configured at position ", bullet.global_position)
 	
 	# Make bullet ignore the guard that shot it
 	bullet.add_collision_exception_with(self)
@@ -882,8 +931,7 @@ func create_bullet(direction: Vector2) -> void:
 	if bullet.has_signal("hit_player"):
 		bullet.hit_player.connect(_on_bullet_hit_player)
 	
-	# Add to scene
-	get_tree().current_scene.add_child(bullet)
+	print("DEBUG create_bullet: Bullet fully configured and ready")
 
 func create_simple_bullet() -> Node2D:
 	# Create a simple bullet using built-in nodes

@@ -28,6 +28,7 @@ signal hit_player
 
 var direction := Vector2.RIGHT
 var time_alive := 0.0
+var can_collide := false  # Prevent immediate collision with shooter
 
 @onready var trail_particles: GPUParticles2D = $GPUParticles2D if has_node("GPUParticles2D") else null
 @onready var impact_particles: GPUParticles2D = $ImpactParticles if has_node("ImpactParticles") else null
@@ -67,6 +68,10 @@ func _ready() -> void:
 			var trail_material = trail_particles.process_material as ParticleProcessMaterial
 			if trail_material:
 				trail_material.direction = Vector3(-direction.x, -direction.y, 0)
+	
+	# Wait one frame before allowing collisions to prevent hitting the shooter
+	await get_tree().physics_frame
+	can_collide = true
 
 func setup_bullet_texture() -> void:
 	"""Create a small circular texture for the bullet if none exists"""
@@ -115,12 +120,14 @@ func _physics_process(delta: float) -> void:
 		var trail_offset = -direction * 10  # Emit from behind
 		trail_particles.position = trail_offset
 	
-	# Check for direct collisions with bodies (walls, etc.)
-	var colliding_bodies = get_colliding_bodies()
-	if colliding_bodies.size() > 0:
-		for body in colliding_bodies:
-			_handle_body_collision(body)
-		return
+	# Only check collisions after first frame
+	if can_collide:
+		# Check for direct collisions with bodies (walls, etc.)
+		var colliding_bodies = get_colliding_bodies()
+		if colliding_bodies.size() > 0:
+			for body in colliding_bodies:
+				_handle_body_collision(body)
+			return
 	
 	# Remove bullet after lifetime
 	if time_alive >= lifetime:

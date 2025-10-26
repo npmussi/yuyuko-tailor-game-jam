@@ -26,7 +26,7 @@ extends Area2D
 
 @export var win_message := "YOU WIN!"
 @export var restart_delay := 3.0  # Seconds to wait before restarting
-@export var next_level_scene := ""  # Future: Set this to load next level instead of restarting
+@export var next_level_scene := "res://scenes/garden.tscn"  # Future: Set this to load next level instead of restarting
 
 var has_won := false  # Prevent multiple triggers
 var win_ui: CanvasLayer  # Reference to the win screen UI
@@ -67,6 +67,7 @@ func trigger_win():
 	
 	# Wait for delay then proceed to next action
 	await get_tree().create_timer(restart_delay).timeout
+	print("Loading next stage...")
 	proceed_to_next_stage()
 
 func freeze_all_guards():
@@ -131,17 +132,26 @@ func create_win_screen():
 func proceed_to_next_stage():
 	"""Handle what happens after win delay - restart or next level"""
 	
-	# FUTURE LEVEL PROGRESSION:
-	# To make this load the next level instead of restarting:
-	# 1. Set next_level_scene to something like "res://scenes/level_2.tscn"
-	# 2. Uncomment the next level loading code below
-	# 3. Comment out the restart_level() call
+	print("DEBUG: proceed_to_next_stage called")
+	print("DEBUG: next_level_scene = ", next_level_scene)
+	print("DEBUG: Scene exists? ", ResourceLoader.exists(next_level_scene) if next_level_scene != "" else false)
 	
 	if next_level_scene != "" and ResourceLoader.exists(next_level_scene):
 		# Load next level
-		get_tree().change_scene_to_file(next_level_scene)
+		print("Loading next level: ", next_level_scene)
+		
+		# Clean up win UI before transitioning
+		if win_ui:
+			win_ui.queue_free()
+		
+		# Change to next scene
+		var error = get_tree().change_scene_to_file(next_level_scene)
+		if error != OK:
+			print("ERROR: Failed to load next level. Error code: ", error)
+			restart_level()  # Fallback to restart if loading fails
 	else:
-		# Restart current level (prototype behavior)
+		# No next level specified or file doesn't exist - restart current level
+		print("No valid next level scene, restarting current level")
 		restart_level()
 
 func restart_level():

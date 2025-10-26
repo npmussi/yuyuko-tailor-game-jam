@@ -28,6 +28,13 @@ directories/dtl_directory={
 "dialogic/timeline": "res://src/dialogic/timeline.dtl"
 }
 layout/style_directory={}
+glossary/default_case_sensitive=true
+variables={
+"bluekey": false,
+"greenkey": false,
+"redkey": false,
+"sake_obtained": false
+}
 
 [display]
 

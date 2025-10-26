@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://c82dsdw4g0rmw"]
+
+[ext_resource type="Script" uid="uid://dsmb8qnk275x2" path="res://src/keycard/door.gd" id="1_p2ted"]
+[ext_resource type="Texture2D" uid="uid://cg8aju5godaht" path="res://assets/sprites/snowcratesmall.png" id="2_lb3bw"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_t7sx8"]
+
+[node name="Door" type="StaticBody2D"]
+script = ExtResource("1_p2ted")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_lb3bw")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_t7sx8")
