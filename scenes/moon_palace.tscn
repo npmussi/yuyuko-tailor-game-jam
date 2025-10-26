@@ -63,7 +63,7 @@ position = Vector2(1355, 829)
 position = Vector2(1354, 791)
 
 [node name="N" type="Node2D" parent="PatrolPoints/Zelda"]
-position = Vector2(1141, 667)
+position = Vector2(1127, 668)
 
 [node name="NW" type="Node2D" parent="PatrolPoints/Zelda"]
 position = Vector2(867, 666)
@@ -242,7 +242,7 @@ patrol_points = [NodePath("../../PatrolPoints/Zelda/Center"), NodePath("../../Pa
 target = NodePath("../../Yuyuko")
 
 [node name="NW" parent="ZeldaGuards" node_paths=PackedStringArray("patrol_points", "target") instance=ExtResource("5_ugc70")]
-position = Vector2(865, 669)
+position = Vector2(883, 669)
 collision_layer = 3
 collision_mask = 22
 motion_mode = 1
