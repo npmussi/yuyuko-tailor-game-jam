@@ -7,7 +7,6 @@
 
 [node name="Key" type="CharacterBody2D"]
 script = ExtResource("1_i05a3")
-timeline = "uid://cm0m38vd0eslf"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_k0uhg")

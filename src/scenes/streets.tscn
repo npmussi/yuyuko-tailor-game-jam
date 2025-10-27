@@ -233,6 +233,7 @@ target = NodePath("../Yuyuko")
 
 [node name="Key" parent="." instance=ExtResource("9_iy3s6")]
 position = Vector2(147, 295)
+timeline = "uid://cm0m38vd0eslf"
 
 [node name="Door" parent="." instance=ExtResource("10_jbxf2")]
 position = Vector2(552, 505)
