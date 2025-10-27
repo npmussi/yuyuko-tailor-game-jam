@@ -10,8 +10,10 @@ enum UdongeState {
 @export var noise_type := "udonge" # Type of noise to generate, see guard.gd
 @export var duration := 4.0 # How long it produces noise for
 @export var noise_interval := 0.5 # How often it produces noise
+@export var activation_sound: AudioStream # Sound to play when turning ON
 
 @onready var sprite: Sprite2D = $Sprite2D
+@onready var audio_player: AudioStreamPlayer2D = $AudioStreamPlayer2D
 
 const SPEED = 300.0
 const JUMP_VELOCITY = -400.0
@@ -36,6 +38,10 @@ func set_state(state: UdongeState) -> void:
 			sprite.frame = 1
 			set_physics_process(true)
 			emit_noise()
+			# Play activation sound if available
+			if activation_sound and audio_player:
+				audio_player.stream = activation_sound
+				audio_player.play()
 		UdongeState.BROKEN:
 			sprite.frame = 46
 			set_physics_process(false)
