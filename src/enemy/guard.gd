@@ -613,6 +613,7 @@ func change_state(new_state: GuardState) -> void:
 			consecutive_investigations = 0  # Reset when actually spotting player
 			total_investigation_time = 0.0  # Reset investigation timer
 			movement_speed = enemy_speed  # Faster alert speed (swapped with investigation)
+
 			nav_agent.target_position = player.global_position
 		GuardState.INVESTIGATE:
 			consecutive_investigations += 1  # Increment investigation counter
