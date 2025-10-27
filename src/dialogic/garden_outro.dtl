@@ -1,4 +1,4 @@
 join yuyuko right [animation="Fade In" length="1.0"]
-yuyuko: They must use this area for training drills.
-yuyuko: These Lunarian soldiers don't seem very well prepared for a war.
-yuyuko: The Moon Palace is likely even more heavily guarded.[br]Now, what shall I steal from it?
+yuyuko (startled): They must use this area for training drills.
+yuyuko (annoyed): These Lunarian soldiers don't seem very well prepared for a war.
+yuyuko (default): The Moon Palace is likely even more heavily guarded.[br]Now, what shall I steal from it?
