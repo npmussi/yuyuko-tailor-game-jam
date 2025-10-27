@@ -426,10 +426,6 @@ func handle_patrol_state() -> void:
 			var distance = global_position.distance_to(target_pos)
 			
 			if distance <= 6.0:
-				# Debug first time reaching a patrol point
-				if debug_first_patrol_reach:
-					push_warning("PATROL: [" + name + "] Reached point " + str(current_patrol_index) + " at distance " + str(distance) + ", wait_time=" + str(wait_time))
-					debug_first_patrol_reach = false
 				
 				# Increment wait timer
 				patrol_wait_timer += get_process_delta_time()
@@ -943,12 +939,6 @@ func shoot_at_player() -> void:
 
 func shoot_in_direction(direction: Vector2) -> void:
 	"""Shoot a bullet in the specified direction (for always_shoot mode)"""
-
-	# Print debug only once to avoid log spam
-	if not debug_shoot_printed:
-		push_warning("DEBUG shoot_in_direction: Called with direction=" + str(direction) + " current_facing_angle=" + str(current_facing_angle) + " state=" + str(GuardState.keys()[current_state]))
-		debug_shoot_printed = true
-
 	if is_game_over:
 		# Quiet debug when game is over
 		return

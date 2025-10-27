@@ -34,6 +34,10 @@ func _ready() -> void:
 	if !is_locked:
 		queue_free()  # Remove immediately if not locked
 
+func _on_activate() -> void:
+	# Doors are not interactable, so this should not be called
+	pass
+
 func get_door_id() -> String:
 	return door_id
 
