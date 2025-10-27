@@ -5,7 +5,7 @@ extends Control
 ## Shamelessly stolen from https://github.com/DandyLyons/GodotMenuExamples/blob/main/Features/TitleScreen/TitleScreen.tscn
 
 @export var background_texture: Texture2D  # Assign a PNG in the inspector
-@export var first_level_scene := "res://scenes/introduction.tscn"  # Start with introduction
+@export var first_level_scene := "res://src/scenes/introduction.tscn"  # Start with introduction
 
 @onready var background: ColorRect = $Background
 @onready var press_start_label: Label = $MarginContainer/VBoxContainer/PressStartLabel

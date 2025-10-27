@@ -888,10 +888,6 @@ func shoot_at_player() -> void:
 	# Face the player
 	var direction_to_player = (player.global_position - global_position).normalized()
 	
-	# WARNING: Check if direction is suspiciously only positive X
-	if abs(direction_to_player.x - 1.0) < 0.01 and abs(direction_to_player.y) < 0.01:
-		push_warning("SHOOTING BUG: shoot_at_player() calculated direction=(1.0, 0.0) - guard at ", global_position, ", player at ", player.global_position)
-	
 	target_facing_angle = rad_to_deg(direction_to_player.angle())
 	
 	print("DEBUG shoot_at_player: guard=", global_position, " player=", player.global_position, " direction=", direction_to_player, " angle=", target_facing_angle)
@@ -907,11 +903,7 @@ func shoot_at_player() -> void:
 
 func shoot_in_direction(direction: Vector2) -> void:
 	"""Shoot a bullet in the specified direction (for always_shoot mode)"""
-	
-	# WARNING: Check if direction is suspiciously only positive X
-	if abs(direction.x - 1.0) < 0.01 and abs(direction.y) < 0.01:
-		push_warning("SHOOTING BUG DETECTED: shoot_in_direction() called with direction=(1.0, 0.0) - current_facing_angle=", current_facing_angle, " guard state=", GuardState.keys()[current_state], " guard pos=", global_position)
-	
+
 	print("DEBUG shoot_in_direction: Called with direction=", direction, " current_facing_angle=", current_facing_angle, " state=", GuardState.keys()[current_state])
 	
 	if is_game_over:

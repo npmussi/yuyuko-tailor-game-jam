@@ -7,6 +7,7 @@
 
 [node name="Fan" type="CharacterBody2D"]
 script = ExtResource("1_q55hx")
+timeline = "uid://qkng1opgw2xr"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_q55hx")

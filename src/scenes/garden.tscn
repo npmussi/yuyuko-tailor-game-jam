@@ -1,6 +1,7 @@
-[gd_scene load_steps=12 format=4 uid="uid://blu246grfexn1"]
+[gd_scene load_steps=13 format=4 uid="uid://blu246grfexn1"]
 
 [ext_resource type="PackedScene" uid="uid://c82dsdw4g0rmw" path="res://src/keycard/door.tscn" id="1_mykkn"]
+[ext_resource type="Script" uid="uid://630k2wjuvl81" path="res://src/base/level.gd" id="1_wggcm"]
 [ext_resource type="PackedScene" uid="uid://dsgljtlwr407e" path="res://src/player/player.tscn" id="2_vnvr7"]
 [ext_resource type="TileSet" uid="uid://c44xp2igb7e41" path="res://assets/tiles/streets.tres" id="3_hw4dn"]
 [ext_resource type="TileSet" uid="uid://cdivq77t31obv" path="res://assets/tiles/avoidancetiles.tres" id="4_lf31p"]
@@ -12,7 +13,9 @@
 [ext_resource type="PackedScene" uid="uid://cqaqcypqknvan" path="res://src/keycard/peach.tscn" id="10_5qxmd"]
 [ext_resource type="AudioStream" uid="uid://bojq1e2ki1tbi" path="res://assets/music/Yuyu_Intro_Orchestrated.mp3" id="11_8csfy"]
 
-[node name="Streets2" type="Node2D"]
+[node name="Garden" type="Node2D"]
+script = ExtResource("1_wggcm")
+timeline = "uid://cqc1bh460jrxl"
 
 [node name="RedDoor" parent="." instance=ExtResource("1_mykkn")]
 z_index = 1
@@ -121,7 +124,8 @@ position = Vector2(380, 122)
 [node name="WinArea" parent="." instance=ExtResource("8_x1i2t")]
 position = Vector2(425.00003, 407)
 scale = Vector2(3, 3)
-next_level_scene = "res://scenes/moon_palace.tscn"
+timeline = "uid://d3p6t24nd5pdq"
+next_level_scene = "res://src/scenes/moon_palace.tscn"
 
 [node name="ChainGuard6" parent="." node_paths=PackedStringArray("patrol_points", "target") instance=ExtResource("5_ugc70")]
 position = Vector2(393, 108)
@@ -318,6 +322,7 @@ position = Vector2(51, 560)
 
 [node name="Peach" parent="." instance=ExtResource("10_5qxmd")]
 position = Vector2(82, 51)
+timeline = "uid://bugcxr7lbkew1"
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("11_8csfy")

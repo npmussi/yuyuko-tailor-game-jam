@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://cuv68b7f85acf" path="res://src/enemy/guard.tscn" id="4_4nkto"]
 [ext_resource type="Texture2D" uid="uid://cg8aju5godaht" path="res://assets/sprites/snowcratesmall.png" id="4_15mv3"]
 [ext_resource type="Texture2D" uid="uid://cy4eefc6gwqih" path="res://assets/tiles/avoidancetiles.png" id="5_7nomh"]
-[ext_resource type="Script" uid="uid://dpmnopk7wfpbj" path="res://scenes/tilemap_runtime_mask.gd" id="5_e3sih"]
+[ext_resource type="Script" uid="uid://dpmnopk7wfpbj" path="res://src/scenes/tilemap_runtime_mask.gd" id="5_e3sih"]
 [ext_resource type="Texture2D" uid="uid://c88k57d0gr5vw" path="res://assets/tiles/tilesheet.png" id="7_2cbcq"]
 [ext_resource type="PackedScene" uid="uid://h246rwqevrsk" path="res://src/props/WinArea.tscn" id="10_2y5yt"]
 [ext_resource type="PackedScene" uid="uid://bkj3m4n5o6p7q" path="res://src/ui/StaminaUI.tscn" id="17_1s4pk"]

@@ -1,0 +1,5 @@
+join yuyuko right [animation="Fade In" length="1.0"]
+yuyuko: A... fan? In such a heavily guarded room?
+yuyuko: Hm. The designs on my fans are cuter~
+leave yuyuko [animation="Fade In" length="1.0"]
+Hold down X to shoot projectiles, instantly defeating any guard on contact.

@@ -7,6 +7,7 @@
 
 [node name="Peach" type="CharacterBody2D"]
 script = ExtResource("1_18bds")
+timeline = "uid://bugcxr7lbkew1"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_s0kk8")

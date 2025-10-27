@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cl4ahrgpf8fiu"]
 
-[ext_resource type="Script" uid="uid://bi274jmw7dpnb" path="res://src/ui/TitleScreen.gd" id="1_lficp"]
+[ext_resource type="Script" uid="uid://bi274jmw7dpnb" path="res://src/scenes/TitleScreen.gd" id="1_lficp"]
 [ext_resource type="AudioStream" uid="uid://bojq1e2ki1tbi" path="res://assets/music/Yuyu_Intro_Orchestrated.mp3" id="2_v2wgv"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_riebt"]

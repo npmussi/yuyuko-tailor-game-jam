@@ -6,7 +6,7 @@ extends Interactable
 func _ready() -> void:
 	super._ready()  # Call parent _ready() to add to "interactable" group
 
-func activate() -> void:
+func _on_activate() -> void:
 	print("Fan picked up!")
 	
 	# Find the player and give them the fan weapon

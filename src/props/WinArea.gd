@@ -26,7 +26,8 @@ extends Area2D
 
 @export var win_message := "YOU WIN!"
 @export var restart_delay := 3.0  # Seconds to wait before restarting
-@export var next_level_scene := ""  # Set this to load next level (empty = restart current level)
+@export_file("*.dtl") var timeline := ""  # Indicates which Dialogic timeline to play on win
+@export_file("*.tscn") var next_level_scene := ""  # Set this to load next level (empty = restart current level)
 
 var has_won := false  # Prevent multiple triggers
 var win_ui: CanvasLayer  # Reference to the win screen UI
@@ -50,6 +51,44 @@ func trigger_win():
 	# Print to console for debugging
 	print(win_message)
 	
+	# Play Dialogic timeline if specified
+	if timeline != "" and ResourceLoader.exists(timeline):
+		print("Playing win timeline: ", timeline)
+		var timeline_resource = ResourceLoader.load(timeline)
+		if timeline_resource == null:
+			push_warning("Failed to load timeline: %s" % timeline)
+		else:
+			freeze_player_and_guards()
+			Dialogic.start(timeline_resource)
+			# Connect to timeline_ended to proceed after dialogue finishes
+			Dialogic.timeline_ended.connect(_on_win_timeline_finished)
+			
+			# Freeze player and guards but don't show win screen yet
+			# (let the dialogue play first)
+			return  # Exit early - will continue after dialogue
+	
+	# If no timeline or failed to load, proceed normally
+	freeze_player_and_guards()
+	create_win_screen()
+	
+	# Wait for delay then proceed to next action
+	await get_tree().create_timer(restart_delay).timeout
+	print("Loading next stage...")
+	proceed_to_next_stage()
+
+
+func _on_win_timeline_finished() -> void:
+	"""Called when the win timeline dialogue finishes"""
+	create_win_screen()
+	
+	# Wait for delay then proceed to next action
+	await get_tree().create_timer(restart_delay).timeout
+	print("Loading next stage...")
+	proceed_to_next_stage()
+
+
+func freeze_player_and_guards() -> void:
+	"""Freeze player and guards (separated from trigger_win for reuse)"""
 	# Freeze player completely - disable all input processing
 	var player = get_tree().get_first_node_in_group("player")
 	if player:
@@ -61,14 +100,6 @@ func trigger_win():
 	
 	# Freeze all guards too for dramatic effect
 	freeze_all_guards()
-	
-	# Create and show win screen UI
-	create_win_screen()
-	
-	# Wait for delay then proceed to next action
-	await get_tree().create_timer(restart_delay).timeout
-	print("Loading next stage...")
-	proceed_to_next_stage()
 
 func freeze_all_guards():
 	"""Freeze all guards when player wins"""
