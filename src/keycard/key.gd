@@ -50,3 +50,7 @@ func unlock_doors() -> void:
 		if door.has_method("get_door_id") and door.get_door_id() == door_id:
 			door.unlock()
 			print("Unlocked door: ", door.name)
+
+func _on_activate() -> void:
+	# This should not be called since we override activate()
+	pass

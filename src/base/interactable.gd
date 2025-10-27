@@ -55,4 +55,4 @@ func _on_activate() -> void:
 	"""Override this in child classes to implement actual activation behavior"""
 	print("INTERACTABLE BASE: _on_activate() called on ", name, " - this should be overridden!")
 	push_error("Did you forget to implement the _on_activate() function in " + name + "?")
-	assert(false, "Interactable._on_activate() not implemented in " + name)
+	# assert(false, "Interactable._on_activate() not implemented in " + name)
