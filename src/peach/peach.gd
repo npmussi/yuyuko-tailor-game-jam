@@ -8,8 +8,7 @@ var is_available := true  # Track if peach can be eaten
 func _ready() -> void:
 	super._ready()  # Call parent _ready() to add to "interactable" group
 
-func activate() -> void:
-	super.activate()
+func _on_activate() -> void:
 	
 	# Now do peach-specific logic
 	if !is_available:

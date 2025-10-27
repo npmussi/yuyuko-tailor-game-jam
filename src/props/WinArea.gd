@@ -28,6 +28,7 @@ extends Area2D
 @export var restart_delay := 3.0  # Seconds to wait before restarting
 @export_file("*.dtl") var timeline := ""  # Indicates which Dialogic timeline to play on win
 @export_file("*.tscn") var next_level_scene := ""  # Set this to load next level (empty = restart current level)
+@export_file("*.wav") var level_clear_sfx := ""  # Sound effect to play when level is cleared
 
 var has_won := false  # Prevent multiple triggers
 
@@ -50,6 +51,15 @@ func trigger_win():
 	# Print to console for debugging
 	print(win_message)
 	
+	# Play level clear sound effect if specified
+	if level_clear_sfx != "" and ResourceLoader.exists(level_clear_sfx):
+		var sfx = AudioStreamPlayer.new()
+		sfx.stream = load(level_clear_sfx)
+		get_tree().root.add_child(sfx)
+		sfx.play()
+		sfx.finished.connect(sfx.queue_free)
+		print("Playing level clear sound effect: ", level_clear_sfx)
+	
 	# Play Dialogic timeline if specified
 	if timeline != "" and ResourceLoader.exists(timeline):
 		print("Playing win timeline: ", timeline)
@@ -70,9 +80,7 @@ func trigger_win():
 	freeze_player_and_guards()
 	# create_win_screen()  # Removed - no win screen
 	
-	# Wait for delay then proceed to next action
-	await get_tree().create_timer(restart_delay).timeout
-	print("Loading next stage...")
+	# Proceed to next stage immediately
 	proceed_to_next_stage()
 
 
@@ -80,9 +88,7 @@ func _on_win_timeline_finished() -> void:
 	"""Called when the win timeline dialogue finishes"""
 	# create_win_screen()  # Removed - no win screen
 	
-	# Wait for delay then proceed to next action
-	await get_tree().create_timer(restart_delay).timeout
-	print("Loading next stage...")
+	# Proceed to next stage immediately
 	proceed_to_next_stage()
 
 
@@ -135,10 +141,6 @@ func proceed_to_next_stage():
 	if next_level_scene != "" and ResourceLoader.exists(next_level_scene):
 		# Load next level
 		print("Loading next level: ", next_level_scene)
-		
-		# Clean up win UI before transitioning
-		# if win_ui:
-		# 	win_ui.queue_free()
 		
 		# Change to next scene
 		var error = get_tree().change_scene_to_file(next_level_scene)

@@ -219,7 +219,17 @@ func update_stamina(delta: float) -> void:
 		if current_stamina <= 0.0:
 			current_state = MovementState.WALKING
 			current_noise_level = 10
+			update_sneak_visual()  # Update sprite appearance
 	# Stamina NO LONGER regenerates automatically - must eat peaches!
+
+func update_sneak_visual() -> void:
+	"""Update sprite appearance based on sneaking state"""
+	if current_state == MovementState.SNEAKING:
+		# Make sprite gray and semi-transparent when sneaking
+		sprite.modulate = Color(0.5, 0.5, 0.5, 0.6)  # Gray and 60% opacity
+	else:
+		# Normal appearance when not sneaking
+		sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)  # Full color and opacity
 
 func activate_nearby_objects() -> void:
 	"""Activate/interact with nearby objects that aren't behind the player.
@@ -320,17 +330,20 @@ func _physics_process(delta: float) -> void:
 	if !cached_can_sneak_check and current_state == MovementState.SNEAKING:
 		current_state = MovementState.WALKING
 		current_noise_level = 10  # Reduced from 15
+		update_sneak_visual()  # Update sprite appearance
 		
 	# Handle sneaking (renamed from crouching)
 	if Input.is_action_just_pressed("crouch"):  # Keep input action as "crouch" for compatibility
 		# Can only sneak if no guards are alerted AND has stamina
 		if cached_can_sneak_check and current_stamina > 0:
 			current_state = MovementState.SNEAKING if current_state == MovementState.WALKING else MovementState.WALKING
+			update_sneak_visual()  # Update sprite appearance
 			# Don't change noise level when just changing stance - only movement makes noise
 		else:
 			# Force player to stand if any guards are alerted or no stamina
 			if current_state == MovementState.SNEAKING:
 				current_state = MovementState.WALKING
+				update_sneak_visual()  # Update sprite appearance
 				# Don't change noise level when just changing stance
 
 	if Input.is_action_just_pressed("ui_accept"):

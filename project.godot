@@ -28,12 +28,14 @@ directories/dch_directory={
 }
 directories/dtl_directory={
 "dialogic/timeline": "res://src/dialogic/streets_intro.dtl",
+"ending": "res://src/dialogic/ending.dtl",
 "fan": "res://src/dialogic/fan.dtl",
 "garden_intro": "res://src/dialogic/garden_intro.dtl",
 "garden_outro": "res://src/dialogic/garden_outro.dtl",
 "introduction": "res://src/dialogic/introduction.dtl",
 "keycard": "res://src/dialogic/keycard.dtl",
 "moon_palace_intro": "res://src/dialogic/moon_palace_intro.dtl",
+"moon_palace_outro": "res://src/dialogic/moon_palace_outro.dtl",
 "peach": "res://src/dialogic/peach.dtl",
 "streets_end": "res://src/dialogic/streets_outro.dtl"
 }

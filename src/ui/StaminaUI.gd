@@ -33,11 +33,22 @@ func _ready():
 	# CanvasLayer automatically handles screen positioning
 	layer = 100  # High layer to ensure it's always on top
 	
+	# Create a black background panel for high contrast
+	var background_panel = ColorRect.new()
+	background_panel.color = Color(0, 0, 0, 0.7)  # Semi-transparent black
+	background_panel.position = Vector2(10, 10)
+	background_panel.size = Vector2(520, 50)  # 30% longer (400 * 1.3 = 520)
+	$StaminaUI.add_child(background_panel)
+	$StaminaUI.move_child(background_panel, 0)  # Move to back so labels are on top
+	
 	# Position labels at top-left corner with some padding
 	if stamina_label:
 		stamina_label.position = Vector2(20, 20)
 		stamina_label.add_theme_font_size_override("font_size", 20)  # Bigger font
-		stamina_label.add_theme_color_override("font_color", Color(0.8, 0.2, 1.0)) # Bright purple
+		stamina_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0)) # White for high contrast
+		# Add black outline for extra visibility
+		stamina_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+		stamina_label.add_theme_constant_override("outline_size", 2)
 	
 	if movement_label:
 		movement_label.hide() # Hide the movement label
@@ -52,5 +63,5 @@ func _process(_delta):
 				percentage = (player.current_stamina / player.MAX_STAMINA) * 100.0
 			stamina_label.text = "Resurrection Butterfly - %d%% Reflowering-" % [int(percentage)]
 		
-		# Movement label is hidden, no need to update it.
+		# Movement label is hidden, no need to update t.
 		
