@@ -28,9 +28,13 @@ directories/dch_directory={
 }
 directories/dtl_directory={
 "dialogic/timeline": "res://src/dialogic/timeline.dtl",
+"fan": "res://assets/portraits/fan.dtl",
 "garden_intro": "res://assets/portraits/garden_intro.dtl",
+"garden_outro": "res://assets/portraits/garden_outro.dtl",
 "introduction": "res://src/dialogic/introduction.dtl",
 "keycard": "res://assets/portraits/keycard.dtl",
+"moon_palace_intro": "res://assets/portraits/moon_palace_intro.dtl",
+"peach": "res://assets/portraits/peach.dtl",
 "streets_end": "res://assets/portraits/streets_end.dtl"
 }
 layout/style_directory={}
