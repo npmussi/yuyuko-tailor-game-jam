@@ -1,6 +1,16 @@
-[gd_scene load_steps=2 format=3 uid="uid://c2ckp0kkklhab"]
+[gd_scene load_steps=4 format=3 uid="uid://c2ckp0kkklhab"]
 
-[ext_resource type="Script" path="res://src/scenes/ending.gd" id="1_l378f"]
+[ext_resource type="Script" uid="uid://bqb51uj2y3d6d" path="res://src/scenes/ending.gd" id="1_l378f"]
+[ext_resource type="Texture2D" uid="uid://diw6qlvxj2bnb" path="res://assets/sprites/SSiBNoBG.png" id="2_i6aii"]
+[ext_resource type="Texture2D" uid="uid://wworjwu4vkt" path="res://assets/portraits/Yuyuhappytsprite.png" id="3_px5cj"]
 
 [node name="ending" type="Node2D"]
 script = ExtResource("1_l378f")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(766, 359)
+texture = ExtResource("2_i6aii")
+
+[node name="Sprite2D2" type="Sprite2D" parent="."]
+position = Vector2(251, 354)
+texture = ExtResource("3_px5cj")

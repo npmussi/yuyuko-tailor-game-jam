@@ -23,6 +23,7 @@ extends CanvasLayer
 
 @onready var stamina_label: Label = $StaminaUI/StaminaLabel
 @onready var movement_label: Label = $StaminaUI/MovementLabel
+@onready var controls_label: Label = $StaminaUI/ControlsLabel
 
 var player: CharacterBody2D
 
@@ -37,7 +38,7 @@ func _ready():
 	var background_panel = ColorRect.new()
 	background_panel.color = Color(0, 0, 0, 0.7)  # Semi-transparent black
 	background_panel.position = Vector2(10, 10)
-	background_panel.size = Vector2(520, 50)  # 30% longer (400 * 1.3 = 520)
+	background_panel.size = Vector2(520, 110)  # Taller to cover stamina + controls (3 lines)
 	$StaminaUI.add_child(background_panel)
 	$StaminaUI.move_child(background_panel, 0)  # Move to back so labels are on top
 	
@@ -49,6 +50,13 @@ func _ready():
 		# Add black outline for extra visibility
 		stamina_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
 		stamina_label.add_theme_constant_override("outline_size", 2)
+	
+	# Style the controls label
+	if controls_label:
+		controls_label.add_theme_font_size_override("font_size", 16)
+		controls_label.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0))
+		controls_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
+		controls_label.add_theme_constant_override("outline_size", 2)
 	
 	if movement_label:
 		movement_label.hide() # Hide the movement label

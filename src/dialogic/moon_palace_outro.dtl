@@ -1,7 +1,7 @@
 join yuyuko right [animation="Fade In" length="1.0"]
-yuyuko: This must be the Watatsuki sisters' room!
-yuyuko: Fufufu. I can imagine the looks on their faces once they realize an intruder made it all the way here.
-yuyuko: Now, what shall I get?[br]The finest swords?[br]Strange Lunarian technology?
-yuyuko: ...
-yuyuko: I know.
-yuyuko: How about a bottle of sake?
+yuyuko (happy): This must be the Watatsuki sisters' room!
+yuyuko (happy): Fufufu. I can imagine the looks on their faces once they realize an intruder made it all the way here.
+yuyuko (neutral): Now, what shall I get?[br]The finest swords?[br]Strange Lunarian technology?
+yuyuko (neutral): ...
+yuyuko (determined): I know.
+yuyuko (happy): How about a bottle of sake?

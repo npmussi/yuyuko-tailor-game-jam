@@ -1,6 +1,6 @@
 join yuyuko right [animation="Fade In" length="1.0"]
-yuyuko: Oh, peaches! How delicious!
-yuyuko: I feel as if my strength is returning to me, after such an arduous journey.
+yuyuko (happy): Oh, peaches! How delicious!
+yuyuko (happy): I feel as if my strength is returning to me, after such an arduous journey.
 leave yuyuko [animation="Fade Out" length="1.0"]
 Press C to use Yuyuko's Resurrection Butterfly.[br]This enables her to become invisible to enemies.
 The Resurrection Butterfly gauge is depleted while in use.[br]Restore it by eating peaches.

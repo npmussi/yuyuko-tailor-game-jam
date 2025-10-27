@@ -31,6 +31,6 @@ func _on_intro_finished() -> void:
 
 func load_streets_scene() -> void:
 	"""Load the Streets scene (first level)"""
-	var error = get_tree().change_scene_to_file("res://src/scenes/streets.tscn")
+	var error = get_tree().change_scene_to_file("res://src/scenes/title_screen.tscn")
 	if error != OK:
 		push_error("Failed to load streets scene. Error code: %d" % error)
