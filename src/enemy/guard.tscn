@@ -32,6 +32,7 @@ collision_mask = 2
 script = ExtResource("1_0ay6c")
 enemy_speed = 50.0
 bullet_speed = 600.0
+gun_fire_sfx = "uid://bdkfiedctlwwv"
 scan_chance = 0.0
 mid_patrol_scan_chance = 0.0
 show_debug_visuals = true

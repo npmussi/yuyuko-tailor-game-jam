@@ -63,6 +63,7 @@ const MOVEMENT_THRESHOLD := 5.0  # Minimum velocity to be considered "moving" (s
 @export var shoot_cooldown := 1.0  # Time between shots
 @export var bullet_speed := 150.0  # Speed of the bullet
 @export var always_shoot := false # If true, guard continuously shoots in facing direction
+@export_file("*.wav") var gun_fire_sfx := ""  # Sound effect to play when guard shoots (should be quiet)
 
 # Behavior System
 @export var investigation_wait_time := 3.0  # Time to investigate at a location
@@ -926,6 +927,18 @@ func shoot_in_direction(direction: Vector2) -> void:
 
 func create_bullet(direction: Vector2) -> void:
 	#print("DEBUG create_bullet: Creating bullet with direction=", direction, " speed=", bullet_speed)
+	
+	# Play gun fire sound effect if specified (positional audio - only hear when nearby)
+	if gun_fire_sfx != "" and ResourceLoader.exists(gun_fire_sfx):
+		var sfx = AudioStreamPlayer2D.new()
+		sfx.stream = load(gun_fire_sfx)
+		sfx.volume_db = -10.0  # Quiet volume (-10 dB)
+		sfx.max_distance = 300.0  # Can hear from up to 300 pixels away
+		sfx.attenuation = 2.0  # How quickly sound fades with distance (higher = faster fadeout)
+		sfx.global_position = global_position  # Position sound at guard's location
+		get_tree().root.add_child(sfx)
+		sfx.play()
+		sfx.finished.connect(sfx.queue_free)
 	
 	# Always create a simple bullet (skip problematic Bullet.tscn)
 	var bullet = create_simple_bullet()
