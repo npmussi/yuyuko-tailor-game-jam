@@ -104,6 +104,7 @@ var current_scan_index := 0
 var scan_target_angle := 0.0
 var mid_patrol_timer := 0.0  # Timer for mid-patrol scan checks
 var should_reverse_patrol := false  # Flag to reverse patrol direction after scan
+var patrol_wait_timer := 0.0  # Timer for waiting at patrol points
 
 var investigation_timer := 0.0
 var investigation_position := Vector2.ZERO
@@ -174,7 +175,9 @@ func _ready() -> void:
 		spawn_marker.global_position = global_position
 		add_child(spawn_marker)
 		patrol_points.append(spawn_marker)
-		#print("Guard ", name, " has no patrol points - created spawn point at ", global_position)
+		push_warning("INIT: [" + name + "] No patrol points - created spawn point")
+	else:
+		push_warning("INIT: [" + name + "] Found " + str(patrol_points.size()) + " patrol points, wait_time=" + str(wait_time))
 
 	if target == null:
 		push_warning("Guard has no target assigned; some logic may fail.")
@@ -226,6 +229,8 @@ func setup() -> void:
 	# Pick the closest patrol point as the starting point, then advance to it
 	set_nearest_patrol_as_start()
 	set_next_patrol_point()
+	
+	push_warning("SETUP: [" + name + "] Initial patrol_index=" + str(current_patrol_index) + " target=" + str(nav_agent.target_position) + " speed=" + str(movement_speed))
 
 func reset_guard_state() -> void:
 	"""Reset guard to initial patrol state (called on game restart)"""
@@ -267,7 +272,14 @@ func _physics_process(delta: float) -> void:
 			if distance_moved < STUCK_MOVEMENT_THRESHOLD:
 				# Guard hasn't moved significantly - skip to next patrol point
 				if debug_timer >= debug_interval:
-					print("GUARD STUCK DEBUG: Guard at ", global_position, " only moved ", distance_moved, " units in ", STUCK_CHECK_INTERVAL, " seconds - advancing to next patrol point")
+					var nav_finished = nav_agent.is_navigation_finished()
+					var nav_next = Vector2.ZERO
+					if not nav_finished:
+						nav_next = nav_agent.get_next_path_position()
+					var patrol_target = Vector2.ZERO
+					if patrol_points.size() > 0:
+						patrol_target = patrol_points[current_patrol_index].global_position
+					print("GUARD STUCK DEBUG: Guard=", name, " pos=", global_position, " last_pos=", last_position_check, " moved=", distance_moved, " nav_finished=", nav_finished, " nav_next=", nav_next, " patrol_index=", current_patrol_index, " target=", patrol_target)
 				set_next_patrol_point()
 			
 			# Reset timer and position
@@ -339,13 +351,18 @@ func _physics_process(delta: float) -> void:
 		var next_pos = nav_agent.get_next_path_position()
 		var dir = global_position.direction_to(next_pos)
 		
-		# Normal movement logic
-		# Update target angle based on movement direction (but not when shooting)
-		if dir.length() > 0.1 and !is_shooting:  # Only update when actually moving and not shooting
-			target_facing_angle = rad_to_deg(dir.angle())
-		
-		# Ensure consistent movement speed
-		velocity = dir * movement_speed
+		# If next path position is the same as current position, it means we're stuck or pathing failed.
+		# In this case, we don't move. The stuck detector will handle it.
+		if next_pos == global_position:
+			velocity = Vector2.ZERO
+		else:
+			# Normal movement logic
+			# Update target angle based on movement direction (but not when shooting)
+			if dir.length() > 0.1 and !is_shooting:  # Only update when actually moving and not shooting
+				target_facing_angle = rad_to_deg(dir.angle())
+			
+			# Ensure consistent movement speed
+			velocity = dir * movement_speed
 		
 		move_and_slide()
 		
@@ -407,14 +424,27 @@ func handle_patrol_state() -> void:
 		if patrol_points.size() > 0:
 			var target_pos = patrol_points[current_patrol_index].global_position
 			var distance = global_position.distance_to(target_pos)
+			
 			if distance <= 6.0:
-				# Random chance to scan at patrol point
-				if randf() < scan_chance:
-					should_reverse_patrol = false  # Don't reverse at patrol points
-					setup_scan()
-					change_state(GuardState.SCANNING)
-				else:
-					set_next_patrol_point()
+				# Debug first time reaching a patrol point
+				if debug_first_patrol_reach:
+					push_warning("PATROL: [" + name + "] Reached point " + str(current_patrol_index) + " at distance " + str(distance) + ", wait_time=" + str(wait_time))
+					debug_first_patrol_reach = false
+				
+				# Increment wait timer
+				patrol_wait_timer += get_process_delta_time()
+				
+				# Check if we've waited long enough
+				if patrol_wait_timer >= wait_time:
+					patrol_wait_timer = 0.0  # Reset timer
+					
+					# Random chance to scan at patrol point
+					if randf() < scan_chance:
+						should_reverse_patrol = false  # Don't reverse at patrol points
+						setup_scan()
+						change_state(GuardState.SCANNING)
+					else:
+						set_next_patrol_point()
 	
 	# Actually move the guard towards the target (only if we have multiple patrol points)
 	if patrol_points.size() > 1:
@@ -733,8 +763,17 @@ func can_see_player() -> bool:
 func set_next_patrol_point() -> void:
 	if patrol_points.size() == 0:
 		return
+	
 	current_patrol_index = (current_patrol_index + 1) % patrol_points.size()
 	nav_agent.target_position = patrol_points[current_patrol_index].global_position
+	
+	# It can take a physics frame for the new path to be calculated.
+	# We wait, then check if the path is valid.
+	await get_tree().physics_frame
+	
+	var next_pos = nav_agent.get_next_path_position()
+	if next_pos == global_position:
+		push_warning("PATHFINDING FAILED: [" + name + "] to point " + str(current_patrol_index) + " (" + str(nav_agent.target_position) + "). Agent is likely off-mesh.")
 
 func reverse_patrol_direction() -> void:
 	# Go back to the previous patrol point
@@ -905,21 +944,24 @@ func shoot_at_player() -> void:
 func shoot_in_direction(direction: Vector2) -> void:
 	"""Shoot a bullet in the specified direction (for always_shoot mode)"""
 
-	print("DEBUG shoot_in_direction: Called with direction=", direction, " current_facing_angle=", current_facing_angle, " state=", GuardState.keys()[current_state])
-	
+	# Print debug only once to avoid log spam
+	if not debug_shoot_printed:
+		push_warning("DEBUG shoot_in_direction: Called with direction=" + str(direction) + " current_facing_angle=" + str(current_facing_angle) + " state=" + str(GuardState.keys()[current_state]))
+		debug_shoot_printed = true
+
 	if is_game_over:
-		print("DEBUG shoot_in_direction: Game over, not shooting")
+		# Quiet debug when game is over
 		return
-	
+
 	# Set shooting flag briefly
 	is_shooting = true
-	
+
 	# Create bullet immediately
 	create_bullet(direction)
-	
+
 	# Update last shot time
 	last_shot_time = Time.get_time_dict_from_system()["second"] + Time.get_time_dict_from_system()["minute"] * 60
-	
+
 	# Reset shooting flag after a short delay
 	get_tree().create_timer(0.3).timeout.connect(func(): 
 		is_shooting = false

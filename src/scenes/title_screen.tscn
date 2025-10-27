@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://cl4ahrgpf8fiu"]
+[gd_scene load_steps=5 format=3 uid="uid://cl4ahrgpf8fiu"]
 
 [ext_resource type="Script" uid="uid://bi274jmw7dpnb" path="res://src/scenes/TitleScreen.gd" id="1_lficp"]
 [ext_resource type="AudioStream" uid="uid://bojq1e2ki1tbi" path="res://assets/music/Yuyu_Intro_Orchestrated.mp3" id="2_v2wgv"]
 [ext_resource type="Texture2D" uid="uid://diw6qlvxj2bnb" path="res://assets/sprites/SSiBNoBG.png" id="3_vdgeu"]
+[ext_resource type="Texture2D" uid="uid://baro8oi2tleo7" path="res://assets/portraits/幽々子（微笑）.png" id="4_5nc4p"]
 
 [node name="TitleScreen" type="Control"]
 layout_mode = 3
@@ -78,3 +79,8 @@ autostart = true
 position = Vector2(572, 256)
 scale = Vector2(0.7, 0.7)
 texture = ExtResource("3_vdgeu")
+
+[node name="幽々子（微笑）" type="Sprite2D" parent="."]
+position = Vector2(963, 280)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_5nc4p")

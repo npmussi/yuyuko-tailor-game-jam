@@ -17,9 +17,63 @@
 &"nicknames": [""],
 &"offset": Vector2(0, 0),
 &"portraits": {
+"annoyed": {
+"export_overrides": {
+"image": "\"res://assets/portraits/Yuyuannoyedtsprite.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1,
+"scene": ""
+},
+"crait": {
+"export_overrides": {
+"image": "\"res://assets/portraits/Yuyucraitsprite.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1,
+"scene": ""
+},
 "default": {
 "export_overrides": {
 "image": "\"res://assets/portraits/幽々子（微笑）.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1,
+"scene": ""
+},
+"determined": {
+"export_overrides": {
+"image": "\"res://assets/portraits/Yuyudeterminedtsprite.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1,
+"scene": ""
+},
+"happy": {
+"export_overrides": {
+"image": "\"res://assets/portraits/Yuyuhappytsprite.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1,
+"scene": ""
+},
+"neutral": {
+"export_overrides": {
+"image": "\"res://assets/portraits/YuyuNeutraltsprite.png\""
+},
+"mirror": false,
+"offset": Vector2(0, 0),
+"scale": 1,
+"scene": ""
+},
+"startled": {
+"export_overrides": {
+"image": "\"res://assets/portraits/Yuyustartledtsprite.png\""
 },
 "mirror": false,
 "offset": Vector2(0, 0),
