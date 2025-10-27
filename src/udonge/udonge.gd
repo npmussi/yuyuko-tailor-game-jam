@@ -30,10 +30,10 @@ func set_state(state: UdongeState) -> void:
 	print("Udonge state changed to: ", state)
 	match state:
 		UdongeState.OFF:
-			sprite.frame = 10
+			sprite.frame = 0
 			set_physics_process(false)
 		UdongeState.ON:
-			sprite.frame = 12
+			sprite.frame = 1
 			set_physics_process(true)
 			emit_noise()
 		UdongeState.BROKEN:

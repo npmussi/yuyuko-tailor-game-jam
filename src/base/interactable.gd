@@ -39,11 +39,6 @@ func play_timeline() -> void:
 		push_warning("Failed to load timeline: %s" % timeline)
 		_on_activate()  # Fallback to normal activation
 		return
-	
-	# Freeze game if requested
-	if pause_game_during_timeline:
-		freeze_player_and_guards()
-	
 	Dialogic.start(timeline_resource)
 	# Connect to timeline_ended to continue after dialogue finishes
 	Dialogic.timeline_ended.connect(_on_timeline_finished)
@@ -51,50 +46,9 @@ func play_timeline() -> void:
 
 func _on_timeline_finished() -> void:
 	"""Called when the interactable's timeline dialogue finishes"""
-	# Unfreeze game if we froze it
-	if pause_game_during_timeline:
-		unfreeze_player_and_guards()
 	
 	# Now do the actual activation effect
 	_on_activate()
-
-
-func freeze_player_and_guards() -> void:
-	"""Freeze player and guards during dialogue"""
-	var player = get_tree().get_first_node_in_group("player")
-	if player:
-		player.velocity = Vector2.ZERO
-		player.set_process_input(false)
-		player.set_physics_process(false)
-		if player.has_method("get_caught"):
-			player.is_caught = true
-	
-	# Freeze all guards
-	var guards = get_tree().get_nodes_in_group("guards")
-	for guard in guards:
-		if guard.has_method("freeze_guard"):
-			guard.freeze_guard()
-		else:
-			guard.velocity = Vector2.ZERO
-			guard.set_physics_process(false)
-
-
-func unfreeze_player_and_guards() -> void:
-	"""Unfreeze player and guards after dialogue"""
-	var player = get_tree().get_first_node_in_group("player")
-	if player:
-		player.set_process_input(true)
-		player.set_physics_process(true)
-		if player.has_method("get_caught"):
-			player.is_caught = false
-	
-	# Unfreeze all guards
-	var guards = get_tree().get_nodes_in_group("guards")
-	for guard in guards:
-		if guard.has_method("unfreeze_guard"):
-			guard.unfreeze_guard()
-		else:
-			guard.set_physics_process(true)
 
 
 func _on_activate() -> void:

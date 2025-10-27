@@ -9,6 +9,9 @@ func _ready() -> void:
 	super._ready()  # Call parent _ready() to add to "interactable" group
 
 func activate() -> void:
+	super.activate()
+	
+	# Now do peach-specific logic
 	if !is_available:
 		return  # Can't eat if already eaten
 	

@@ -5,6 +5,8 @@ extends Interactable
 
 func _ready() -> void:
 	super._ready()  # Call parent _ready() to add to "interactable" group
+	print("FAN: Fan ready, added to groups:", get_groups())
+	print("FAN: Timeline set to:", timeline)
 
 func _on_activate() -> void:
 	print("Fan picked up!")

@@ -30,7 +30,6 @@ extends Area2D
 @export_file("*.tscn") var next_level_scene := ""  # Set this to load next level (empty = restart current level)
 
 var has_won := false  # Prevent multiple triggers
-var win_ui: CanvasLayer  # Reference to the win screen UI
 
 func _ready():
 	# Connect the body_entered signal to our win function
@@ -69,7 +68,7 @@ func trigger_win():
 	
 	# If no timeline or failed to load, proceed normally
 	freeze_player_and_guards()
-	create_win_screen()
+	# create_win_screen()  # Removed - no win screen
 	
 	# Wait for delay then proceed to next action
 	await get_tree().create_timer(restart_delay).timeout
@@ -79,7 +78,7 @@ func trigger_win():
 
 func _on_win_timeline_finished() -> void:
 	"""Called when the win timeline dialogue finishes"""
-	create_win_screen()
+	# create_win_screen()  # Removed - no win screen
 	
 	# Wait for delay then proceed to next action
 	await get_tree().create_timer(restart_delay).timeout
@@ -113,52 +112,7 @@ func freeze_all_guards():
 			guard.set_physics_process(false)
 
 func create_win_screen():
-	"""Create full-screen win UI overlay"""
-	# Create a CanvasLayer to ensure it appears on top
-	var canvas_layer = CanvasLayer.new()
-	canvas_layer.layer = 1000  # High layer to appear on top of everything
-	
-	# Create a full-screen control container
-	var control_container = Control.new()
-	control_container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	
-	# Black background
-	var background = ColorRect.new()
-	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	background.color = Color.BLACK
-	control_container.add_child(background)
-	
-	# Win message label
-	var label = Label.new()
-	label.text = win_message
-	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	
-	# Make text big and white
-	label.add_theme_font_size_override("font_size", 64)
-	label.add_theme_color_override("font_color", Color.WHITE)
-	
-	control_container.add_child(label)
-	
-	# Technical note label for developers
-	var tech_label = Label.new()
-	tech_label.text = "// next_level_scene export variable can be set to trigger scene transitions or custom win handlers"
-	tech_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	tech_label.offset_top = -60
-	tech_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	tech_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	
-	# Smaller, dimmed text for technical note
-	tech_label.add_theme_font_size_override("font_size", 16)
-	tech_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7, 0.8))
-	
-	control_container.add_child(tech_label)
-	canvas_layer.add_child(control_container)
-	
-	# Add to scene tree
-	get_tree().root.add_child(canvas_layer)
-	win_ui = canvas_layer  # Store reference for cleanup
+	pass  # Removed win screen creation
 
 func reset_keycard_variables():
 	"""Resets all Dialogic variables related to keycards to false."""
@@ -183,8 +137,8 @@ func proceed_to_next_stage():
 		print("Loading next level: ", next_level_scene)
 		
 		# Clean up win UI before transitioning
-		if win_ui:
-			win_ui.queue_free()
+		# if win_ui:
+		# 	win_ui.queue_free()
 		
 		# Change to next scene
 		var error = get_tree().change_scene_to_file(next_level_scene)
@@ -199,8 +153,8 @@ func proceed_to_next_stage():
 func restart_level():
 	"""Restart the current scene"""
 	# Clean up win UI before restarting
-	if win_ui:
-		win_ui.queue_free()
+	# if win_ui:
+	# 	win_ui.queue_free()
 	
 	# Restart the current scene
 	get_tree().reload_current_scene()

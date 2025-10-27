@@ -24,6 +24,10 @@ func _ready() -> void:
 				sprite.modulate = Color.WHITE  # Default white
 
 func activate() -> void:
+	# Call parent activate() first to handle timeline logic
+	super.activate()
+	
+	# Now do key-specific logic
 	print("Keycard picked up: ", keycard_variable)
 	
 	# Set the Dialogic variable to true
